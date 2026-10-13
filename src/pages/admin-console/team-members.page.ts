@@ -1,19 +1,27 @@
 import type { Locator, Page, Response } from '@playwright/test';
 
 import { ADMIN_CONSOLE_SELECTORS, TIMEOUTS } from '../../config';
-import { AUTHZ_BASE } from '../../api';
+import { AUTHZ_BASE, teamMembersGroupingOf, type TeamMembersGrouping } from '../../api';
 
-/** The Team Members table's columns, in the order the console renders them. */
+/**
+ * The Team Members table's columns, by position, in each grouping.
+ *
+ * Grouped by user (`main`), one cell carries the first role together with its
+ * scope and organization, and a column of its own holds the "+N more roles"
+ * toggle — so `organization`, `scope` and `role` all name that one cell.
+ */
 export const TEAM_MEMBER_COLUMNS = {
-  name: 0,
-  email: 1,
-  organization: 2,
-  scope: 3,
-  role: 4,
-  actions: 5,
+  assignment: { name: 0, email: 1, organization: 2, scope: 3, role: 4, actions: 5 },
+  user: { name: 0, email: 1, organization: 2, scope: 2, role: 2, moreRoles: 3, actions: 4 },
 } as const;
 
-export type TeamMemberColumn = keyof typeof TEAM_MEMBER_COLUMNS;
+export type TeamMemberColumn = keyof (typeof TEAM_MEMBER_COLUMNS)['assignment'];
+
+/** How many columns the table renders in each grouping. */
+export const TEAM_MEMBER_COLUMN_COUNT: Readonly<Record<TeamMembersGrouping, number>> = {
+  assignment: 6,
+  user: 5,
+};
 
 /** Which filter dropdown, by the order the console renders them. */
 export const TEAM_MEMBER_FILTERS = { organization: 0, role: 1, scope: 2 } as const;
@@ -21,13 +29,19 @@ export const TEAM_MEMBER_FILTERS = { organization: 0, role: 1, scope: 2 } as con
 export type TeamMemberFilter = keyof typeof TEAM_MEMBER_FILTERS;
 
 /**
- * The console's **Team Members** tab: one row per role assignment, a search box,
- * three filters, sortable columns and a ten-row page.
+ * The console's **Team Members** tab: a search box, three filters, sortable
+ * columns and a ten-row page.
+ *
+ * What a row *is* depends on the console's generation ({@link grouping}): one
+ * row per role assignment read from `assignments/` (`verawood`), or one row per
+ * user read from `users/` (`main`). This object detects which from the rendered
+ * table and takes either list request as its own, so a spec stays generation-free
+ * by counting against `listTeamMembers` under the grouping this reports.
  *
  * Rows are located by the **email** they carry, which is the suite's own data
  * (a generated address), never by a rendered label. Every action waits for the
- * `assignments/` request it causes and returns that response, so a mis-located
- * control fails loudly instead of asserting against a stale table.
+ * list request it causes and returns that response, so a mis-located control
+ * fails loudly instead of asserting against a stale table.
  */
 export class TeamMembersTable {
   private readonly s = ADMIN_CONSOLE_SELECTORS;
@@ -52,14 +66,31 @@ export class TeamMembersTable {
     this.nextPage = this.footer.locator(this.s.pagerButton).last();
   }
 
+  private detected: TeamMembersGrouping | undefined;
+
   /**
-   * Runs `action` and returns the assignments response it caused.
+   * Which grouping this console renders, read from the table once it is on
+   * screen: only the user-grouped table carries its own wrapper class.
+   */
+  async grouping(): Promise<TeamMembersGrouping> {
+    if (this.detected === undefined) {
+      await this.table.waitFor({ state: 'visible', timeout: TIMEOUTS.navigation });
+      this.detected =
+        (await this.panel.locator(this.s.teamMembersUserGrouped).count()) > 0
+          ? 'user'
+          : 'assignment';
+    }
+    return this.detected;
+  }
+
+  /**
+   * Runs `action` and returns the list response it caused.
    *
    * `matches` picks the response out of the several the console may have in
-   * flight — the search box debounces, so waiting for "the next assignments
+   * flight — the search box debounces, so waiting for "the next list
    * response" would capture the one the page was already fetching.
    */
-  private async withAssignments(
+  private async withList(
     action: () => Promise<void>,
     matches: (url: URL) => boolean = () => true,
     timeout: number = TIMEOUTS.navigation,
@@ -67,7 +98,7 @@ export class TeamMembersTable {
     const [response] = await Promise.all([
       this.page.waitForResponse(
         (r) =>
-          r.url().includes(`${AUTHZ_BASE}/assignments/`) &&
+          teamMembersGroupingOf(r.url()) !== undefined &&
           r.request().method() === 'GET' &&
           matches(new URL(r.url())),
         { timeout },
@@ -79,7 +110,7 @@ export class TeamMembersTable {
 
   /** Types a search term and waits for the debounced query that carries it. */
   async search(term: string): Promise<Response> {
-    return this.withAssignments(
+    return this.withList(
       async () => {
         await this.searchInput.fill(term);
       },
@@ -123,7 +154,7 @@ export class TeamMembersTable {
     const param = { organization: 'orgs', role: 'roles', scope: 'scopes' }[filter];
     const first = options.first();
     const value = (await first.getAttribute('value')) ?? '';
-    const response = await this.withAssignments(
+    const response = await this.withList(
       async () => {
         await first.check();
       },
@@ -143,9 +174,9 @@ export class TeamMembersTable {
   private async turnPage(control: Locator, wantedPage: string): Promise<Response> {
     const matches = (url: URL) => (url.searchParams.get('page') ?? '1') === wantedPage;
     try {
-      return await this.withAssignments(() => control.click(), matches, TIMEOUTS.optionalOverlay);
+      return await this.withList(() => control.click(), matches, TIMEOUTS.optionalOverlay);
     } catch {
-      return await this.withAssignments(() => control.click(), matches);
+      return await this.withList(() => control.click(), matches);
     }
   }
 
@@ -156,8 +187,9 @@ export class TeamMembersTable {
 
   /** Sorts by a column, waiting for the re-query the console runs. */
   async sortBy(column: TeamMemberColumn): Promise<Response> {
-    return this.withAssignments(async () => {
-      await this.columnHeaders.nth(TEAM_MEMBER_COLUMNS[column]).click();
+    const index = TEAM_MEMBER_COLUMNS[await this.grouping()][column];
+    return this.withList(async () => {
+      await this.columnHeaders.nth(index).click();
     });
   }
 
@@ -169,39 +201,63 @@ export class TeamMembersTable {
     return this.rows.filter({ hasText: email });
   }
 
-  /** One cell of a row. */
-  cell(row: Locator, column: TeamMemberColumn): Locator {
-    return row.locator(this.s.cell).nth(TEAM_MEMBER_COLUMNS[column]);
+  /** One cell of a row, in the table's current grouping. */
+  async cell(row: Locator, column: TeamMemberColumn): Promise<Locator> {
+    return row.locator(this.s.cell).nth(TEAM_MEMBER_COLUMNS[await this.grouping()][column]);
+  }
+
+  /** The role a row shows: the Role cell (by assignment) or the first role's badge (by user). */
+  roleMarker(row: Locator): Locator {
+    return row.locator(this.s.roleCell);
   }
 
   /**
-   * The Role cell's role marker. The console only renders it for a role it has a
-   * display name for — the migrated `course_limited_staff`,
-   * `course_data_researcher` and `course_beta_tester` rows have none, so the
-   * marker is absent there (`RBAC-003`).
+   * Whether the row shows a display name for its role, rather than nothing
+   * (by assignment) or the bare role key (by user) — the two ways the console
+   * renders a role it cannot name (`RBAC-003`). `roleKey` is the role the row
+   * is known to carry: the API's data, not a label.
    */
-  roleMarker(row: Locator): Locator {
-    return this.cell(row, 'role').locator(this.s.roleCell);
+  async namesRole(row: Locator, roleKey: string): Promise<boolean> {
+    const marker = this.roleMarker(row).first();
+    if ((await this.grouping()) === 'assignment') {
+      return ((await marker.getAttribute('data-role')) ?? '') !== '';
+    }
+    return ((await marker.textContent()) ?? '').trim() !== roleKey;
   }
 
-  /** The "(Me)" marker the console appends to the signed-in user's own name. */
-  currentUserMarker(row: Locator): Locator {
-    return this.cell(row, 'name').locator(this.s.currentUserMarker);
+  /**
+   * Whether the console marks the row as the signed-in user's own. By
+   * assignment it adds a "(Me)" element; by user it adds the same words as bare
+   * text beside the username — read as "the cell says more than `username`",
+   * which compares against the suite's own data, never the localized marker.
+   */
+  async isMarkedAsCurrentUser(row: Locator, username: string): Promise<boolean> {
+    const name = await this.cell(row, 'name');
+    if ((await this.grouping()) === 'assignment') {
+      return (await name.locator(this.s.currentUserMarker).count()) > 0;
+    }
+    return ((await name.textContent()) ?? '').trim() !== username;
+  }
+
+  /** User-grouped only: the toggle that reveals the rest of a user's roles. */
+  moreRolesToggle(row: Locator): Locator {
+    return row.locator(this.s.moreRolesToggle);
   }
 
   /** The row's action control: the button that opens that user's audit view. */
-  viewButton(row: Locator): Locator {
-    return this.cell(row, 'actions').locator(this.s.rowActionButton).first();
+  async viewButton(row: Locator): Promise<Locator> {
+    return (await this.cell(row, 'actions')).locator(this.s.rowActionButton).first();
   }
 
   /** Opens a row's audit view and waits for that user's assignments request. */
   async openAudit(row: Locator): Promise<Response> {
+    const view = await this.viewButton(row);
     const [response] = await Promise.all([
       this.page.waitForResponse(
         (r) => r.url().includes(`${AUTHZ_BASE}/users/`) && r.url().includes('/assignments/'),
         { timeout: TIMEOUTS.navigation },
       ),
-      this.viewButton(row).click(),
+      view.click(),
     ]);
     return response;
   }

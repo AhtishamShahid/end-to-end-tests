@@ -3,7 +3,7 @@ import type { Route } from '@playwright/test';
 import { expect, test } from '../../../src/fixtures';
 import { checkA11y } from '../../../src/a11y';
 import { ADMIN_CONSOLE_SELECTORS, TIMEOUTS } from '../../../src/config';
-import { AUTHZ_BASE } from '../../../src/api';
+import { teamMembersGroupingOf } from '../../../src/api';
 import { issue, testId } from '../../../src/reporting';
 import { ADMIN_CONSOLE_A11Y_BASELINE, RBAC_TAGS } from '../helpers';
 
@@ -23,6 +23,11 @@ import { ADMIN_CONSOLE_A11Y_BASELINE, RBAC_TAGS } from '../helpers';
  * failed list as a **toast with a retry** over an empty table, and its only
  * full-page error view is the 404 (`RBAC-004`), so each case is asserted
  * against what the console actually renders.
+ *
+ * The two cases that need the Team Members table take `authoringLibrary`
+ * although they never look at it: creating it makes the author a
+ * `library_admin`, and on `main` the console refuses its home page to a caller
+ * who may view no team at all (frontend-app-admin-console#222).
  */
 test.describe(
   'Roles and Permissions console — error views',
@@ -33,20 +38,29 @@ test.describe(
     test(
       'sends a caller whose session has gone to sign in again',
       { annotation: testId('TC-00437') },
-      async ({ page, context, adminConsole, studioAuthorSession }) => {
+      async ({ page, context, adminConsole, authoringLibrary, studioAuthorSession }) => {
         void studioAuthorSession;
+        void authoringLibrary;
         await adminConsole.console.goto();
         await expect(adminConsole.teamMembers.table).toBeVisible();
 
-        // The sheet's own recipe: drop the session and revisit.
+        // The sheet's own recipe: drop the session and revisit. Only the browser
+        // forgets it — the server-side session stays live — so handing the
+        // cookies back afterwards lets the library's teardown, which rides this
+        // context, still delete it.
+        const session = await context.cookies();
         await context.clearCookies();
-        await page.goto(adminConsole.console.url(), { waitUntil: 'domcontentloaded' });
+        try {
+          await page.goto(adminConsole.console.url(), { waitUntil: 'domcontentloaded' });
 
-        // The console hands over to the sign-in screen, carrying where to return
-        // to, and shows none of its own content.
-        await page.waitForURL(/\/(authn\/)?login/, { timeout: TIMEOUTS.navigation });
-        expect(new URL(page.url()).searchParams.get('next') ?? '').toContain('/authz');
-        await expect(adminConsole.teamMembers.table).toHaveCount(0);
+          // The console hands over to the sign-in screen, carrying where to
+          // return to, and shows none of its own content.
+          await page.waitForURL(/\/(authn\/)?login/, { timeout: TIMEOUTS.navigation });
+          expect(new URL(page.url()).searchParams.get('next') ?? '').toContain('/authz');
+          await expect(adminConsole.teamMembers.table).toHaveCount(0);
+        } finally {
+          await context.addCookies(session);
+        }
       },
     );
 
@@ -108,9 +122,12 @@ test.describe(
     test(
       'reports a failed list, retries it once, and leaks nothing when the caller moves on',
       { annotation: [testId('TC-00440'), testId('TC-00441'), testId('TC-00443')] },
-      async ({ page, adminConsole, studioAuthorSession }) => {
+      async ({ page, adminConsole, authoringLibrary, studioAuthorSession }) => {
         void studioAuthorSession;
-        const route = `**${AUTHZ_BASE}/assignments/**`;
+        void authoringLibrary;
+        // The Team Members list, whichever the console's generation reads
+        // (`assignments/` or `users/`) — and no other authz route.
+        const route = (url: URL) => teamMembersGroupingOf(url) !== undefined;
         let attempts = 0;
         let held: Route | undefined;
 

@@ -223,13 +223,19 @@ export async function listRoleUsers(
   return { count: page.count, members: page.results.map(toMember) };
 }
 
-/** One role assignment, as the console's tables list them (one row per assignment). */
+/** One role assignment: a row of the user audit view, and of Team Members grouped by assignment. */
 export interface AuthzAssignment {
   readonly role: string;
   readonly org: string;
   readonly scope: string;
   readonly permissionCount: number;
   readonly isSuperadmin: boolean;
+  /**
+   * The course or library's display name. Only the inline assignments of
+   * `users/` carry it (openedx-authz 1.24.0); empty elsewhere, and for a glob
+   * scope or a scope whose resource is gone.
+   */
+  readonly scopeDisplayName: string;
   /** Present on `assignments/`; empty on `users/<username>/assignments/`. */
   readonly username: string;
   readonly email: string;
@@ -240,6 +246,7 @@ interface RawAssignment {
   readonly role?: string;
   readonly org?: string;
   readonly scope?: string;
+  readonly scope_display_name?: string;
   readonly permission_count?: number;
   readonly is_superadmin?: boolean;
   readonly username?: string;
@@ -251,6 +258,7 @@ const toAssignment = (raw: RawAssignment): AuthzAssignment => ({
   role: raw.role ?? '',
   org: raw.org ?? '',
   scope: raw.scope ?? '',
+  scopeDisplayName: raw.scope_display_name ?? '',
   permissionCount: raw.permission_count ?? 0,
   isSuperadmin: raw.is_superadmin ?? false,
   username: raw.username ?? '',
@@ -314,31 +322,38 @@ export interface AuthzUser {
   readonly email: string;
   readonly fullName: string;
   readonly assignmentCount: number;
+  /**
+   * The first few of the user's assignments, inline (`assignments_limit`,
+   * default 3). openedx-authz 1.24.0 added them; an older release returns none.
+   */
+  readonly assignments: readonly AuthzAssignment[];
+}
+
+interface RawAuthzUser {
+  readonly username?: string;
+  readonly email?: string;
+  readonly full_name?: string;
+  /** 1.24.0's name for the count… */
+  readonly assignment_count?: number;
+  /** …and the name every earlier release used. */
+  readonly assignation_count?: number;
+  readonly assignments?: readonly RawAssignment[];
 }
 
 /** Users with authz assignments visible to the caller. */
 export async function listAuthzUsers(
   request: APIRequestContext,
   config: AppConfig,
-  query: AuthzListQuery & {
-    readonly scopes?: readonly string[];
-    readonly orgs?: readonly string[];
-  } = {},
+  query: AuthzAssignmentQuery = {},
 ): Promise<{ readonly count: number; readonly users: readonly AuthzUser[] }> {
-  const page = await authzGet<
-    AuthzPage<{
-      readonly username?: string;
-      readonly email?: string;
-      readonly full_name?: string;
-      readonly assignation_count?: number;
-    }>
-  >(
+  const page = await authzGet<AuthzPage<RawAuthzUser>>(
     request,
     config,
     `users/${queryString({
       ...pagingParams(query),
       scopes: query.scopes?.join(','),
       orgs: query.orgs?.join(','),
+      roles: query.roles?.join(','),
     })}`,
     'Listing authz users',
   );
@@ -348,7 +363,84 @@ export async function listAuthzUsers(
       username: raw.username ?? '',
       email: raw.email ?? '',
       fullName: raw.full_name ?? '',
-      assignmentCount: raw.assignation_count ?? 0,
+      assignmentCount: raw.assignment_count ?? raw.assignation_count ?? 0,
+      assignments: (raw.assignments ?? []).map(toAssignment),
+    })),
+  };
+}
+
+// --- the console's Team Members list --------------------------------------------------------
+
+/**
+ * How the console's Team Members tab groups its rows, which decides the API it
+ * reads and so what a spec must count:
+ *
+ * - `assignment` — one row per role assignment, read from `assignments/`
+ *   (`release/verawood`).
+ * - `user` — one row per user with their roles nested under it, read from
+ *   `users/` (`main`, frontend-app-admin-console#222 with openedx-authz 1.24.0).
+ */
+export type TeamMembersGrouping = 'assignment' | 'user';
+
+/**
+ * Which grouping a request URL is the Team Members list for, or `undefined` if
+ * it is not that list. `users/<username>/assignments/` (the audit view) and
+ * `users/validate/` (the wizard) share the prefix and are deliberately excluded.
+ */
+export function teamMembersGroupingOf(url: string | URL): TeamMembersGrouping | undefined {
+  const { pathname } = typeof url === 'string' ? new URL(url) : url;
+  if (pathname.endsWith(`${AUTHZ_BASE}/assignments/`)) return 'assignment';
+  if (pathname.endsWith(`${AUTHZ_BASE}/users/`)) return 'user';
+  return undefined;
+}
+
+/** One Team Members row as the API answers for it, whichever the grouping. */
+export interface AuthzTeamMemberRow {
+  readonly username: string;
+  readonly email: string;
+  /** How many assignments the row stands for: always 1 when grouped by assignment. */
+  readonly assignmentCount: number;
+  /** The assignment the row shows first. */
+  readonly first: AuthzAssignment | undefined;
+  /**
+   * How the row names that assignment's scope: the display name where the API
+   * pairs one with it (`users/`), the scope key otherwise.
+   */
+  readonly scopeName: string;
+}
+
+/**
+ * The Team Members list exactly as the console asks for it under `grouping` —
+ * the oracle a spec counts the rendered rows against.
+ */
+export async function listTeamMembers(
+  request: APIRequestContext,
+  config: AppConfig,
+  grouping: TeamMembersGrouping,
+  query: AuthzAssignmentQuery = {},
+): Promise<{ readonly count: number; readonly rows: readonly AuthzTeamMemberRow[] }> {
+  if (grouping === 'assignment') {
+    const { count, assignments } = await listAssignments(request, config, query);
+    return {
+      count,
+      rows: assignments.map((assignment) => ({
+        username: assignment.username,
+        email: assignment.email,
+        assignmentCount: 1,
+        first: assignment,
+        scopeName: assignment.scope,
+      })),
+    };
+  }
+  const { count, users } = await listAuthzUsers(request, config, query);
+  return {
+    count,
+    rows: users.map((user) => ({
+      username: user.username,
+      email: user.email,
+      assignmentCount: user.assignmentCount,
+      first: user.assignments[0],
+      scopeName: user.assignments[0]?.scopeDisplayName || user.assignments[0]?.scope || '',
     })),
   };
 }

@@ -11,7 +11,6 @@ import {
   studioOrigin,
 } from '../../../src/api';
 import {
-  ADMIN_CONSOLE_SELECTORS,
   STUDIO_OUTLINE_PAGE_SELECTORS,
   STUDIO_SHELL_SELECTORS,
   TIMEOUTS,
@@ -79,19 +78,17 @@ test.describe(
           )
           .toEqual(['course_beta_tester']);
 
-        // The console lists the assignment with an **empty** Role cell: it knows
-        // ten role names and this is not one of them (`RBAC-003`), which is the
-        // sheet's own note on this case. The row is located by our account's
-        // e-mail, never by a label.
+        // The console lists the assignment without a display name for the role:
+        // it knows ten role names and this is not one of them (`RBAC-003`), which
+        // is the sheet's own note on this case. `verawood` leaves the Role cell
+        // empty; `main` shows the bare role key in the badge. The row is located
+        // by our account's e-mail, never by a label.
         await adminConsole.console.goto(courseKey);
-        const row = adminConsole.teamMembers.rowsFor(newMember.identity.email);
+        const table = adminConsole.teamMembers;
+        const row = table.rowsFor(newMember.identity.email);
         await expect(row).toHaveCount(1);
-        // The cell is there; what it has to say is empty. `data-role` carries
-        // the console's display name for the role, and it has none for this one.
-        await expect(row.locator(ADMIN_CONSOLE_SELECTORS.roleCell)).toHaveAttribute(
-          'data-role',
-          '',
-        );
+        await expect(table.roleMarker(row)).toHaveCount(1);
+        await expect.poll(() => table.namesRole(row, 'course_beta_tester')).toBe(false);
       },
     );
 

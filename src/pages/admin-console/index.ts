@@ -4,6 +4,7 @@ export { MATRIX_GROUPS, PermissionsMatrix, type MatrixGroup } from './permission
 export { UserAuditPage } from './user-audit.page';
 export {
   TEAM_MEMBER_COLUMNS,
+  TEAM_MEMBER_COLUMN_COUNT,
   TEAM_MEMBER_FILTERS,
   TeamMembersTable,
   type TeamMemberColumn,

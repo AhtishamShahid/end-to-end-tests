@@ -7,7 +7,10 @@
  * localized copy the suite may not match (`RBAC-001`). So these anchor on, in
  * order: Paragon's own test ids, ARIA roles with no name, and structural
  * classes — each with a note naming the control it stands in for. Measured on
- * Tutor `main` with openedx-authz 1.23.0 (2026-09-21).
+ * Tutor `main` with openedx-authz 1.23.0 (2026-09-21); the Team Members table
+ * re-measured on `main` after frontend-app-admin-console#222 (2026-10-13), which
+ * regrouped it from one row per assignment to one row per user. Both layouts are
+ * anchored here: `release/verawood` keeps the first.
  */
 export const ADMIN_CONSOLE_SELECTORS = {
   /** The console's route under its origin; `?scope=` presets the Scope filter. */
@@ -45,6 +48,13 @@ export const ADMIN_CONSOLE_SELECTORS = {
   /** The chip a filter adds below the row; its button clears that filter. */
   filterChipClear: 'button.pgn__chip__icon-after, .pgn__chip button',
 
+  /**
+   * The wrapper class the user-grouped Team Members table carries (`main`). The
+   * assignment-grouped table (`verawood`) has none, so its presence is how the
+   * page object tells the two layouts apart.
+   */
+  teamMembersUserGrouped: '.team-members-table',
+
   /** Paragon's data table, its rows and its footer. */
   table: 'table.pgn__data-table',
   columnHeader: 'th[role="columnheader"]',
@@ -61,14 +71,26 @@ export const ADMIN_CONSOLE_SELECTORS = {
   pagerButton: '.pagination li.page-item button',
 
   /**
-   * Row internals. The Role cell carries `data-role` **only for a role the
-   * console knows**: the three migrated course roles it has no display name for
-   * render an empty cell (`RBAC-003`), so presence is the assertion and the
-   * attribute's value — a localized label — is not.
+   * Row internals: the role a row shows. Assignment-grouped (`verawood`), the
+   * Role cell carries `data-role` set to the console's display name — empty for
+   * the three migrated course roles it cannot name (`RBAC-003`). User-grouped
+   * (`main`), the first role is a badge reading the display name, or the raw
+   * role key where it has none. Presence is the assertion; the label is not.
    */
-  roleCell: '[data-role]',
-  /** The "(Me)" marker the console appends to the signed-in user's own name. */
+  roleCell: '[data-role], .authz-role-badge',
+  /** The badge form of {@link roleCell}, user-grouped only. */
+  roleBadge: '.authz-role-badge',
+  /**
+   * The "(Me)" marker the assignment-grouped table appends to the signed-in
+   * user's name. The user-grouped table wraps *every* name in this class, so
+   * there the marker is read from the cell's text instead.
+   */
   currentUserMarker: '.text-gray-500',
+  /**
+   * User-grouped only: the "+N more roles" toggle, a link-styled `<button>`
+   * carrying `aria-expanded`. Absent on a user holding one role.
+   */
+  moreRolesToggle: 'button[aria-expanded]',
   /** The Actions cell's control: the eye button that opens a user's audit view. */
   rowActionButton: 'button.btn-icon',
 
@@ -80,13 +102,14 @@ export const ADMIN_CONSOLE_SELECTORS = {
   /** The subject's username, which is our own data in a test. */
   auditSubjectHeading: 'h2',
   /**
-   * The permissions expander: the Paragon `Hyperlink` (an `<a>`) inside the
-   * cell's `<div role="button">`. The wrapper has no handler of its own, so a
-   * click on it toggles the row only when its centre happens to fall on the link
-   * (an intermittent no-op in CI). Not a `<button>`: the row's only real
-   * `<button>` is the delete control.
+   * The permissions expander. On `verawood` it is a Paragon `Hyperlink` (an
+   * `<a>`) inside the cell's `<div role="button">`; the wrapper has no handler
+   * of its own, so a click on it toggles the row only when its centre happens to
+   * fall on the link (an intermittent no-op in CI). On `main` it is a real
+   * link-styled `<button>` carrying `aria-expanded` (#222), which no other
+   * control in the row has.
    */
-  auditExpandPermissions: '[role="button"] a',
+  auditExpandPermissions: '[role="button"] a, button[aria-expanded]',
   /**
    * The expanded permission list, inserted as an extra single-cell row after the
    * row it belongs to. The console keeps **one** open at a time, so counting
