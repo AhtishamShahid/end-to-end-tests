@@ -89,7 +89,7 @@ test.describe('Instructor dashboard access', { tag: ['@regression', ...INSTRUCTO
 
   test(
     'global staff see the Instructor tab of a course they hold no role in',
-    { annotation: testId('TC-00513') },
+    { tag: '@smoke', annotation: testId('TC-00513') },
     async ({ config, contentCourse, adminPage }) => {
       const { courseKey } = contentCourse;
       expect(await accessOf(adminPage.request, config, courseKey)).toMatchObject({
@@ -108,7 +108,7 @@ test.describe('Instructor dashboard access', { tag: ['@regression', ...INSTRUCTO
 
   test(
     'a learner sees no Instructor tab and is refused the dashboard',
-    { annotation: testId('TC-00513') },
+    { tag: '@smoke', annotation: testId('TC-00513') },
     async ({ config, contentCourse, roundTripLearner }) => {
       const { courseKey } = contentCourse;
       expect(await accessOf(roundTripLearner.request, config, courseKey)).toEqual({

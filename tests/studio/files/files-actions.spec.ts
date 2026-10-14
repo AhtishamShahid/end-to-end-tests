@@ -38,7 +38,7 @@ test.describe(
 
     test(
       'uploads one file and then several',
-      { annotation: testId('TC-00138') },
+      { tag: '@smoke', annotation: testId('TC-00138') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const key = authoringCourse.courseKey;
@@ -66,7 +66,7 @@ test.describe(
 
     test(
       'copies links, locks, downloads, shows info and deletes',
-      { annotation: testId('TC-00140') },
+      { tag: '@smoke', annotation: testId('TC-00140') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const key = authoringCourse.courseKey;
@@ -110,7 +110,7 @@ test.describe(
 
     test(
       'bulk downloads and deletes selected files',
-      { annotation: testId('TC-00141') },
+      { tag: '@smoke', annotation: testId('TC-00141') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const key = authoringCourse.courseKey;

@@ -28,7 +28,7 @@ test.describe('Content library collections', { tag: ['@regression', ...LIBRARY_T
 
   test(
     'creates a collection from the Add Content sidebar',
-    { annotation: testId('TC-00317') },
+    { tag: '@smoke', annotation: testId('TC-00317') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const title = label('collection', testInfo.testId);
@@ -52,7 +52,7 @@ test.describe('Content library collections', { tag: ['@regression', ...LIBRARY_T
 
   test(
     'adds a new component from the collection page and it appears in the library',
-    { annotation: testId('TC-00318') },
+    { tag: '@smoke', annotation: testId('TC-00318') },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryPage, studioTextEditor },
       testInfo,
@@ -93,7 +93,7 @@ test.describe('Content library collections', { tag: ['@regression', ...LIBRARY_T
 
   test(
     'adds existing library content to a collection from the collection page and from a card',
-    { annotation: testId('TC-00319') },
+    { tag: '@smoke', annotation: testId('TC-00319') },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryPage, libraryPicker },
       testInfo,
@@ -157,7 +157,7 @@ test.describe('Content library collections', { tag: ['@regression', ...LIBRARY_T
 
   test(
     'removes content from a collection while it stays in the library',
-    { annotation: testId('TC-00320') },
+    { tag: '@smoke', annotation: testId('TC-00320') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const block = await authorTextBlock(

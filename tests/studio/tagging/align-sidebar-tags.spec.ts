@@ -31,7 +31,7 @@ test.describe(
 
     test(
       'adds a tag to a section from the Align rail and it persists',
-      { annotation: testId('TC-00490') },
+      { tag: '@smoke', annotation: testId('TC-00490') },
       async ({
         page,
         config,
@@ -85,7 +85,7 @@ test.describe(
 
     test(
       'adds a tag to the unit from the unit-page Align rail and it persists',
-      { annotation: testId('TC-00497') },
+      { tag: '@smoke', annotation: testId('TC-00497') },
       async ({
         page,
         config,
@@ -131,7 +131,7 @@ test.describe(
 
     test(
       'adds a tag to a selected component from the Align rail and it persists',
-      { annotation: testId('TC-00500') },
+      { tag: '@smoke', annotation: testId('TC-00500') },
       async ({
         page,
         config,

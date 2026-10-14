@@ -32,7 +32,7 @@ test.describe('LMS landing page', () => {
 
   test(
     'the catalog link leads to the course catalog',
-    { tag: ['@regression', '@catalog-search', '@mfe-catalog'], annotation: testId('TC-00062') },
+    { tag: ['@smoke', '@catalog-search', '@mfe-catalog'], annotation: testId('TC-00062') },
     async ({ siteHeader, publicChrome, catalogPage }) => {
       void publicChrome;
       await expect(siteHeader.mainLinks).toHaveCount(1);
@@ -43,7 +43,7 @@ test.describe('LMS landing page', () => {
 
   test(
     'the register and sign-in buttons lead to their forms',
-    { tag: ['@regression', '@mfe-catalog', '@mfe-authn'], annotation: testId('TC-00062') },
+    { tag: ['@smoke', '@mfe-catalog', '@mfe-authn'], annotation: testId('TC-00062') },
     async ({ siteHeader, publicChrome, catalogHomePage, registrationPage, loginPage }) => {
       void publicChrome;
       await siteHeader.follow(siteHeader.registerLink);
@@ -57,7 +57,7 @@ test.describe('LMS landing page', () => {
 
   test(
     'searches the catalog from the home page',
-    { tag: ['@regression', '@catalog-search', '@mfe-catalog'], annotation: testId('TC-00065') },
+    { tag: ['@smoke', '@catalog-search', '@mfe-catalog'], annotation: testId('TC-00065') },
     async ({ page, catalogHomePage, catalogPage, courseKey, courseDetail }) => {
       await catalogHomePage.goto();
       // The field starts empty behind a placeholder; the placeholder's words are

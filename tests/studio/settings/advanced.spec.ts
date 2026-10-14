@@ -33,7 +33,7 @@ const settingValue = async (
 test.describe('Advanced Settings', { tag: ['@studio', '@author', '@mfe-authoring'] }, () => {
   test(
     'updates the course display name',
-    { tag: '@regression', annotation: testId('TC-00267') },
+    { tag: '@smoke', annotation: testId('TC-00267') },
     async ({ page, config, authoredCourse, advancedSettingsPage, studioAuthorSession }) => {
       void studioAuthorSession;
       // Author Studio API off the browser's own session — see course-lifecycle.spec.ts / studio-browser-session-decays.

@@ -73,7 +73,7 @@ const SCHEDULE_BASELINE: Partial<CourseDetails> = {
 test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authoring'] }, () => {
   test(
     'sets the course to instructor-paced',
-    { tag: '@regression', annotation: testId('TC-00293') },
+    { tag: '@smoke', annotation: testId('TC-00293') },
     async ({ page, config, authoredCourse, scheduleDetailsPage, studioAuthorSession }) => {
       void studioAuthorSession;
       // Author Studio API off the browser's own session — see course-lifecycle.spec.ts / studio-browser-session-decays.
@@ -108,7 +108,7 @@ test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authorin
 
   test(
     'sets the course to self-paced',
-    { tag: '@regression', annotation: testId('TC-00294') },
+    { tag: '@smoke', annotation: testId('TC-00294') },
     async ({ page, config, authoredCourse, scheduleDetailsPage, studioAuthorSession }) => {
       void studioAuthorSession;
       // Author Studio API off the browser's own session — see course-lifecycle.spec.ts / studio-browser-session-decays.
@@ -135,7 +135,7 @@ test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authorin
 
   test(
     'course start and end dates decide learner access and archival',
-    { tag: '@regression', annotation: testId('TC-00295') },
+    { tag: '@smoke', annotation: testId('TC-00295') },
     async ({
       page,
       config,
@@ -292,7 +292,7 @@ test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authorin
 
   test(
     'sets a custom certificates-available date',
-    { tag: '@regression', annotation: testId('TC-00297') },
+    { tag: '@smoke', annotation: testId('TC-00297') },
     async ({
       page,
       config,
@@ -337,7 +337,7 @@ test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authorin
 
   test(
     'enrollment is allowed only within the enrollment dates',
-    { tag: '@regression', annotation: testId('TC-00298') },
+    { tag: '@smoke', annotation: testId('TC-00298') },
     async ({
       page,
       config,
@@ -489,7 +489,7 @@ test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authorin
 
   test(
     'uploads and sets the course card image',
-    { tag: '@regression', annotation: testId('TC-00302') },
+    { tag: '@smoke', annotation: testId('TC-00302') },
     async ({ page, config, authoredCourse, scheduleDetailsPage, studioAuthorSession }) => {
       void studioAuthorSession;
       // Author Studio API off the browser's own session — see course-lifecycle.spec.ts / studio-browser-session-decays.
@@ -623,7 +623,7 @@ test.describe('Schedule & Details', { tag: ['@studio', '@author', '@mfe-authorin
 
   test(
     'writes an About page overview with an instructor image the catalog shows',
-    { tag: ['@regression', '@mfe-catalog'], annotation: testId('TC-00301') },
+    { tag: ['@smoke', '@mfe-catalog'], annotation: testId('TC-00301') },
     async (
       { page, config, authoredCourse, scheduleDetailsPage, studioAuthorSession, signedOutVisitor },
       testInfo,

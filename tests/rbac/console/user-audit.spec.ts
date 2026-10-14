@@ -80,7 +80,7 @@ test.describe(
 
     test(
       'removes one role of several, then the last one, which returns to the table',
-      { annotation: [testId('TC-00566'), testId('TC-00353')] },
+      { tag: '@smoke', annotation: [testId('TC-00566'), testId('TC-00353')] },
       async ({
         page,
         config,
@@ -142,7 +142,7 @@ test.describe(
 
     test(
       'cancelling the confirmation changes nothing',
-      { annotation: testId('TC-00408') },
+      { tag: '@smoke', annotation: testId('TC-00408') },
       async ({
         page,
         config,

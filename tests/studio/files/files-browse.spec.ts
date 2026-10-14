@@ -51,7 +51,7 @@ test.describe(
 
     test(
       'lays out the files table with both views',
-      { annotation: testId('TC-00134') },
+      { tag: '@smoke', annotation: testId('TC-00134') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const suffix = test.info().testId.slice(-6);
@@ -86,7 +86,7 @@ test.describe(
 
     test(
       'searches, sorts, filters and clears',
-      { annotation: testId('TC-00135') },
+      { tag: '@smoke', annotation: testId('TC-00135') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const suffix = test.info().testId.slice(-6);
@@ -152,7 +152,7 @@ test.describe(
 
     test(
       'sorts and filters without a search term',
-      { annotation: testId('TC-00137') },
+      { tag: '@smoke', annotation: testId('TC-00137') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const suffix = test.info().testId.slice(-6);
@@ -177,7 +177,7 @@ test.describe(
 
     test(
       'lists files with metadata and selectable checkboxes',
-      { annotation: testId('TC-00139') },
+      { tag: '@smoke', annotation: testId('TC-00139') },
       async ({ page, config, authoringCourse, filesPage, studioAuthorSession }) => {
         void studioAuthorSession;
         const suffix = test.info().testId.slice(-6);

@@ -23,7 +23,7 @@ test.describe(
 
     test(
       'grants and resets an individual extension',
-      { annotation: testId('TC-00525') },
+      { tag: '@smoke', annotation: testId('TC-00525') },
       async ({
         page,
         config,

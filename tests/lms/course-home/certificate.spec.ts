@@ -68,7 +68,7 @@ test.describe(
 
     test(
       'links "View my certificate" to the issued certificate',
-      { annotation: testId('TC-00033') },
+      { tag: '@smoke', annotation: testId('TC-00033') },
       async ({ config, certificateCourse, certificateLearner }) => {
         const learner = certificateLearner;
         const webView = await earnedWebView(learner, config, certificateCourse);
@@ -94,7 +94,7 @@ test.describe(
     // install with no marketing site (`CERT-002`).
     test(
       'renders the certificate for the learner and the course',
-      { tag: '@certificate-web-view', annotation: testId('TC-00033') },
+      { tag: ['@certificate-web-view', '@smoke'], annotation: testId('TC-00033') },
       async ({ config, certificateCourse, certificateLearner }) => {
         const learner = certificateLearner;
         const webView = await earnedWebView(learner, config, certificateCourse);
@@ -110,7 +110,7 @@ test.describe(
 
     test(
       'generates the certificate by itself once automatic generation is switched on',
-      { annotation: testId('TC-00114') },
+      { tag: '@smoke', annotation: testId('TC-00114') },
       async ({ config, certificateCourse, certificateAutoGeneration }) => {
         const { learner, turnOn } = certificateAutoGeneration;
         const passed = await passCertificateCourse(

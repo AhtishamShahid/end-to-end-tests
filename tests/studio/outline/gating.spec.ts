@@ -38,6 +38,7 @@ test.describe(
     test(
       'gates a subsection by minimum score in a prerequisite subsection',
       {
+        tag: '@smoke',
         annotation: [
           testId('TC-00159'),
           // TC-00127 is the Studio half of this case: marking the prerequisite and

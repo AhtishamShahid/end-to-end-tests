@@ -74,7 +74,7 @@ test.describe(
 
     test(
       'shows a non-member neither the library nor its team',
-      { annotation: testId('TC-00373') },
+      { tag: '@smoke', annotation: testId('TC-00373') },
       async ({ config, adminConsole, authoringLibrary, studioAuthorSession, studioColleague }) => {
         void studioAuthorSession;
         const library = authoringLibrary.id;

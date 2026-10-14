@@ -180,7 +180,7 @@ test.describe(
 
     test(
       'the issued certificates report lists a certified learner',
-      { annotation: testId('TC-00530') },
+      { tag: '@smoke', annotation: testId('TC-00530') },
       async ({
         page,
         config,

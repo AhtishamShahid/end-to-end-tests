@@ -76,7 +76,7 @@ test.describe(
 
     test(
       'the mail links to the preference centre and unsubscribes in one click',
-      { annotation: [testId('TC-00481'), testId('TC-00472')] },
+      { tag: '@smoke', annotation: [testId('TC-00481'), testId('TC-00472')] },
       async ({ browser, config, forumCourse, forumCast, mailboxLearner }) => {
         const learner = await mailboxLearner(IMMEDIATE_ACTIVITY);
         const poster = await forumCast('poster');
@@ -130,7 +130,7 @@ test.describe(
 
     test(
       'a learner with every preference off receives no mail',
-      { annotation: testId('TC-00477') },
+      { tag: '@smoke', annotation: testId('TC-00477') },
       async ({ page, config, forumCourse, mailboxLearner, studioAuthorSession }) => {
         void studioAuthorSession;
         const courseKey = forumCourse.courseKey;

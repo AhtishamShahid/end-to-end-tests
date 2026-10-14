@@ -26,7 +26,7 @@ test.describe(
 
     test(
       'adds a YouTube video and sets an advanced download option',
-      { annotation: [testId('TC-00213'), testId('TC-00215')] },
+      { tag: '@smoke', annotation: [testId('TC-00213'), testId('TC-00215')] },
       async ({
         page,
         config,

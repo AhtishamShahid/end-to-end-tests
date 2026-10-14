@@ -62,7 +62,7 @@ test.describe(
 
     test(
       'duplicates a component from its sidebar overflow menu',
-      { annotation: testId('TC-00499') },
+      { tag: '@smoke', annotation: testId('TC-00499') },
       async ({
         page,
         config,

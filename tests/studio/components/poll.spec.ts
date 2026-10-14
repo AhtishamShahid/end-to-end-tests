@@ -85,7 +85,7 @@ test.describe(
 
     test(
       'a learner answers every question of a survey',
-      { annotation: testId('TC-00130') },
+      { tag: '@smoke', annotation: testId('TC-00130') },
       async (
         { page, config, contentCourse, studioAuthorSession, roundTripLearnerLater },
         testInfo,

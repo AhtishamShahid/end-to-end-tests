@@ -27,7 +27,7 @@ test.describe(
 
     test(
       'marks a subsection graded and it counts on the learner progress page',
-      { annotation: [testId('TC-00157'), testId('TC-00156')] },
+      { tag: '@smoke', annotation: [testId('TC-00157'), testId('TC-00156')] },
       async ({
         page,
         config,

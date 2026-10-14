@@ -148,7 +148,7 @@ test.describe(
 
     test(
       'shows and clears the Publish button as the item is published',
-      { annotation: testId('TC-00493') },
+      { tag: '@smoke', annotation: testId('TC-00493') },
       async ({
         page,
         config,

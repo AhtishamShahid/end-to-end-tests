@@ -57,7 +57,7 @@ test.describe('Course progress', () => {
   test(
     'renders the grade summary and the platform’s completion state',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning'],
       annotation: testId('TC-00031'),
     },
     async ({ page, progressPage, courseProgress, enrolledCourse }) => {
@@ -89,7 +89,7 @@ test.describe('Course progress', () => {
   test(
     'records a grade once a graded problem is answered',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning'],
       annotation: testId('TC-00031'),
     },
     async ({ page, unitPage, progressPage, completionUnits, courseProgress, enrolledCourse }) => {
@@ -132,7 +132,7 @@ test.describe('Course progress', () => {
   test.fixme(
     'reaches a passing grade',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning'],
       annotation: [
         testId('TC-00031'),
         knownGap(

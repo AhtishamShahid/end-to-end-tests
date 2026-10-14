@@ -37,7 +37,7 @@ test.describe(
 
     test(
       'a published library unit added to the outline reaches the learner with its components',
-      { annotation: testId('TC-00347') },
+      { tag: '@smoke', annotation: testId('TC-00347') },
       async (
         {
           page,
@@ -91,7 +91,7 @@ test.describe(
 
     test(
       'library unit updates are accepted or rejected from the course Libraries page',
-      { annotation: testId('TC-00348') },
+      { tag: '@smoke', annotation: testId('TC-00348') },
       async (
         {
           page,

@@ -22,7 +22,7 @@ test.describe(
 
     test(
       'a course update from staff reaches an enrolled learner',
-      { annotation: testId('TC-00467') },
+      { tag: '@smoke', annotation: testId('TC-00467') },
       async ({ page, config, contentCourse, notificationRecipient, studioAuthorSession }) => {
         void studioAuthorSession;
         const recipient = await notificationRecipient();

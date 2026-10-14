@@ -26,7 +26,7 @@ test.describe(
 
     test(
       'authors bold and italic text in the editor',
-      { annotation: [testId('TC-00217'), testId('TC-00218')] },
+      { tag: '@smoke', annotation: [testId('TC-00217'), testId('TC-00218')] },
       async ({
         page,
         config,

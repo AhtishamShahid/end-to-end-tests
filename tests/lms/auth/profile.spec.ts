@@ -19,7 +19,7 @@ import { expect, test } from '../../../src/fixtures';
 test.describe('Account settings (profile)', () => {
   test(
     'updates the full name',
-    { tag: ['@regression', '@authenticated', '@mfe-account'], annotation: testId('TC-00001') },
+    { tag: ['@smoke', '@authenticated', '@mfe-account'], annotation: testId('TC-00001') },
     async ({ page, accountSettingsPage, learnerIdentity, newLearner }) => {
       const learner = await newLearner();
       await page.context().clearCookies();

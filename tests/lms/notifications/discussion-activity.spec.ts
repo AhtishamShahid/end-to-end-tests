@@ -119,7 +119,7 @@ test.describe(
     for (const activity of CASES) {
       test(
         `notifies the learner when ${activity.title}`,
-        { annotation: testId(activity.id) },
+        { tag: '@smoke', annotation: testId(activity.id) },
         async ({ config, forumCourse, forumCast, notificationRecipient }) => {
           const actors: Actors = {
             recipient: await notificationRecipient(),

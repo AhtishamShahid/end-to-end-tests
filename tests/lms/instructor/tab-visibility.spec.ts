@@ -117,7 +117,7 @@ test.describe(
 
     test(
       'the course instructor is offered the instructor tools',
-      { annotation: testId('TC-00514') },
+      { tag: '@smoke', annotation: testId('TC-00514') },
       async (
         { page, config, authoringCourse, studioAuthorSession, instructorDashboard, courseEmailFor },
         testInfo,
@@ -148,7 +148,7 @@ test.describe(
     for (const { viewer, part, roles } of ROLES) {
       test(
         `${viewer} is offered the staff tools`,
-        { annotation: testId('TC-00514') },
+        { tag: '@smoke', annotation: testId('TC-00514') },
         async (
           { page, config, authoringCourse, studioAuthorSession, instructorCast, courseEmailFor },
           testInfo,

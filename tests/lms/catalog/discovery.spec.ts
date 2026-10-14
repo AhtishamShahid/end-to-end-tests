@@ -37,7 +37,7 @@ function unmatchableTerm(username: string): string {
 test.describe('Course catalog discovery', () => {
   test(
     'is reachable and lists courses for an anonymous visitor',
-    { tag: '@regression', annotation: testId('TC-00014') },
+    { tag: '@smoke', annotation: testId('TC-00014') },
     async ({ page, config, catalogPage, courseDetail, courseKey }) => {
       await locateCourseInCatalog(
         catalogPage,
@@ -56,7 +56,7 @@ test.describe('Course catalog discovery', () => {
 
   test(
     'the page chrome labels its brand link',
-    { tag: ['@regression', '@frontend-base'], annotation: testId('TC-00014') },
+    { tag: ['@smoke', '@frontend-base'], annotation: testId('TC-00014') },
     async ({ page, catalogPage }) => {
       // The frontend-base shell's header and footer each wrap the site logo in a
       // link with no accessible name, so every page served in that shell fails
@@ -85,7 +85,7 @@ test.describe('Course catalog discovery', () => {
 
   test(
     'offers a search field where the installation enables course discovery',
-    { tag: ['@regression', '@catalog-search'], annotation: testId('TC-00014') },
+    { tag: ['@smoke', '@catalog-search'], annotation: testId('TC-00014') },
     async ({ catalogPage }) => {
       // The capability gate means this only runs where CAPABILITIES declares
       // catalog-search, so a missing field here is a real defect on that target —
@@ -98,7 +98,7 @@ test.describe('Course catalog discovery', () => {
 
   test(
     'is reachable from the header for a signed-in learner',
-    { tag: ['@regression', '@authenticated'], annotation: testId('TC-00015') },
+    { tag: ['@smoke', '@authenticated'], annotation: testId('TC-00015') },
     async ({ page, config, catalogPage, dashboardPage, courseDetail, courseLearner }) => {
       const { courseKey } = courseLearner;
 
@@ -124,7 +124,7 @@ test.describe('Course catalog discovery', () => {
 
   test(
     'filters results by search term and restores them when cleared',
-    { tag: ['@regression', '@authenticated', '@catalog-search'], annotation: testId('TC-00016') },
+    { tag: ['@smoke', '@authenticated', '@catalog-search'], annotation: testId('TC-00016') },
     async ({ catalogPage, courseDetail, courseKey }) => {
       await catalogPage.goto();
       // `goto` waits for the result status bar, which renders before the cards do,
@@ -150,7 +150,7 @@ test.describe('Course catalog discovery', () => {
 
   test(
     'reports an empty state when nothing matches',
-    { tag: ['@regression', '@authenticated', '@catalog-search'], annotation: testId('TC-00016') },
+    { tag: ['@smoke', '@authenticated', '@catalog-search'], annotation: testId('TC-00016') },
     async ({ catalogPage, courseLearner }) => {
       await catalogPage.gotoWithSearch(unmatchableTerm(courseLearner.identity.username));
 
@@ -165,7 +165,7 @@ test.describe('Course catalog discovery', () => {
   test(
     'clears stale results when an in-page search matches nothing',
     {
-      tag: ['@regression', '@authenticated', '@catalog-search'],
+      tag: ['@smoke', '@authenticated', '@catalog-search'],
       annotation: [
         testId('TC-00016'),
         issue('https://github.com/openedx/frontend-app-catalog/issues/161'),
@@ -197,7 +197,7 @@ test.describe('Course catalog discovery', () => {
   test(
     'keeps the search field usable when a search matches nothing',
     {
-      tag: ['@regression', '@authenticated', '@catalog-search'],
+      tag: ['@smoke', '@authenticated', '@catalog-search'],
       annotation: [
         testId('TC-00016'),
         issue('https://github.com/openedx/frontend-app-catalog/issues/161'),
@@ -236,7 +236,7 @@ test.describe('Course catalog discovery', () => {
   test.fixme(
     "the About page's course content distinguishes links without colour",
     {
-      tag: ['@regression', '@authenticated'],
+      tag: ['@smoke', '@authenticated'],
       annotation: [
         testId('TC-00018'),
         knownGap(
@@ -261,7 +261,7 @@ test.describe('Course catalog discovery', () => {
   test(
     'clears the search in a single click of its reset control',
     {
-      tag: ['@regression', '@authenticated', '@catalog-search'],
+      tag: ['@smoke', '@authenticated', '@catalog-search'],
       annotation: [
         testId('TC-00016'),
         issue('https://github.com/openedx/frontend-app-catalog/issues/160'),
@@ -290,7 +290,7 @@ test.describe('Course catalog discovery', () => {
 
   test(
     "opens a course's About page from its catalog result",
-    { tag: ['@regression', '@authenticated'], annotation: testId('TC-00018') },
+    { tag: ['@smoke', '@authenticated'], annotation: testId('TC-00018') },
     async ({ page, config, catalogPage, courseAboutPage, courseDetail, courseKey }) => {
       // Reached by search where the target has it, by paging the catalog where it
       // does not — the card is the same card either way, and it is opening the

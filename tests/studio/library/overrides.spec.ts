@@ -35,7 +35,7 @@ test.describe(
 
     test(
       'overrides a standalone text component and the override survives a sync',
-      { annotation: testId('TC-00366') },
+      { tag: '@smoke', annotation: testId('TC-00366') },
       async (
         {
           page,
@@ -123,7 +123,7 @@ test.describe(
 
     test(
       'overrides a text component inside a reused library unit',
-      { annotation: testId('TC-00367') },
+      { tag: '@smoke', annotation: testId('TC-00367') },
       async (
         {
           page,
@@ -198,7 +198,7 @@ test.describe(
 
     test(
       'overrides the title of a library-sourced component',
-      { annotation: testId('TC-00368') },
+      { tag: '@smoke', annotation: testId('TC-00368') },
       async (
         {
           page,

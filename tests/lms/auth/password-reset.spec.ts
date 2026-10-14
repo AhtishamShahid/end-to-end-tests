@@ -15,7 +15,7 @@ import { linkIn, linkingTo, waitForMail } from '../../../src/steps';
 test.describe('Password reset (authn MFE)', () => {
   test(
     'requests a reset and shows the confirmation',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00004') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00004') },
     async ({ forgotPasswordPage, learnerIdentity }) => {
       await forgotPasswordPage.goto();
       await forgotPasswordPage.requestReset(learnerIdentity.email);
@@ -27,7 +27,7 @@ test.describe('Password reset (authn MFE)', () => {
 
   test(
     'rejects an invalid email address',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00004') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00004') },
     async ({ forgotPasswordPage }) => {
       await forgotPasswordPage.goto();
       await forgotPasswordPage.requestReset('not-an-email');
@@ -47,7 +47,7 @@ test.describe('Password reset (authn MFE)', () => {
 
   test(
     'mails a working reset link, and points to technical support',
-    { tag: ['@regression', '@mfe-authn', '@email-inbox'], annotation: testId('TC-00073') },
+    { tag: ['@smoke', '@mfe-authn', '@email-inbox'], annotation: testId('TC-00073') },
     async ({ request, config, forgotPasswordPage, inboxLearner }) => {
       await forgotPasswordPage.goto();
       await forgotPasswordPage.requestReset(inboxLearner.identity.email);

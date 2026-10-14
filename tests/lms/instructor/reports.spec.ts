@@ -80,7 +80,7 @@ test.describe('Aspects Reports tab', { tag: ['@regression', ...REPORTS_TAGS] }, 
 
   test(
     'the superuser opens the Reports tab of a course it holds no role in',
-    { annotation: testId('TC-00543') },
+    { tag: '@smoke', annotation: testId('TC-00543') },
     async ({ authoringCourse, adminReportsPage }) => {
       const { courseKey } = authoringCourse;
 
@@ -93,7 +93,7 @@ test.describe('Aspects Reports tab', { tag: ['@regression', ...REPORTS_TAGS] }, 
 
   test(
     'course staff follow the Superset link and sign in through the LMS',
-    { annotation: testId('TC-00549') },
+    { tag: '@smoke', annotation: testId('TC-00549') },
     async ({ config, authoringCourse, reportsViewer }) => {
       const { courseKey } = authoringCourse;
       const { reportsPage } = await reportsViewer(courseKey);

@@ -28,7 +28,7 @@ test.describe(
 
     test(
       'a moderator is notified when a learner reports a post',
-      { annotation: testId('TC-00460') },
+      { tag: '@smoke', annotation: testId('TC-00460') },
       async ({
         page,
         config,
