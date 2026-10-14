@@ -15,6 +15,7 @@ import {
   AccountNotConfiguredError,
   accountSignInStudio,
   provisionAuthorSession,
+  provisionLearnerAccount,
   provisionLearnerSession,
   reauthenticateStudioAuthor,
   withAdminSession,
@@ -1083,12 +1084,6 @@ export const RBAC_CAST_PARTS = [
   'libraryAuthor',
   'libraryContributor',
   'libraryUser',
-  // Three accounts that only ever hold **every** library role at once: the
-  // console's pagination case needs twelve assignments, and giving the parts
-  // above a role they do not play would change what the library specs measure.
-  'teamPagerA',
-  'teamPagerB',
-  'teamPagerC',
 ] as const;
 
 export type RbacCastPart = (typeof RBAC_CAST_PARTS)[number];
@@ -1319,6 +1314,19 @@ export interface WorkerFixtures {
    * still takes {@link TestFixtures.studioColleague}.
    */
   rbacCast: (part: RbacCastPart) => Promise<StudioColleague>;
+  /**
+   * `count` registered, activated accounts that play no part at all: no
+   * session, no Studio access, no role until a spec gives them one. For a case
+   * that needs a team **wide** rather than capable — the console's pager, which
+   * on `main` counts users rather than assignments, so only distinct accounts
+   * fill a page.
+   *
+   * Registration only — no sign-in spends the per-account login limit — and
+   * provisioned lazily per worker, growing to the largest `count` asked for, so
+   * a retry or a second case reuses the same accounts. Each one still costs a
+   * registration against `REGISTRATION_RATELIMIT` the first time (README).
+   */
+  teamRoster: (count: number) => Promise<readonly LearnerIdentity[]>;
   /**
    * The other actors of the notification and forum cases, one account per part
    * per worker, each a learner enrolled in {@link contentCourse} on its own
@@ -2843,6 +2851,27 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         await member.context.close();
         await member.request.dispose();
       }
+    },
+    { scope: 'worker', timeout: TIMEOUTS.studioSetup },
+  ],
+
+  teamRoster: [
+    async ({ playwright }, use) => {
+      const config = getConfig();
+      const roster: LearnerIdentity[] = [];
+      await use(async (count) => {
+        while (roster.length < count) {
+          // A context per account: registration signs the context in, and the
+          // next registration on a signed-in context would be refused.
+          const request = await playwright.request.newContext();
+          try {
+            roster.push(await provisionLearnerAccount(request, config));
+          } finally {
+            await request.dispose();
+          }
+        }
+        return roster.slice(0, count);
+      });
     },
     { scope: 'worker', timeout: TIMEOUTS.studioSetup },
   ],

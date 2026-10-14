@@ -1,7 +1,7 @@
 import type { Locator, Page, Response } from '@playwright/test';
 
 import { ADMIN_CONSOLE_SELECTORS, TIMEOUTS, type AppConfig } from '../../config';
-import { AUTHZ_BASE, authzScopeKey } from '../../api';
+import { authzScopeKey, teamMembersGroupingOf } from '../../api';
 
 /**
  * The **Roles and Permissions console** shell: its two tabs, the Assign Role
@@ -9,9 +9,10 @@ import { AUTHZ_BASE, authzScopeKey } from '../../api';
  *
  * The console is a separate MFE whose origin is configuration, not a constant,
  * so this object takes it from the caller (the `adminConsole` fixture reads
- * `ADMIN_CONSOLE_URL` from the authoring MFE config). Every navigation waits for
- * the console's own `assignments/` request, which doubles as the "this surface
- * really renders" assertion a capability-gated spec needs.
+ * `ADMIN_CONSOLE_URL` from the authoring MFE config). A spec that needs proof
+ * the surface really renders waits for the console's own Team Members list
+ * request ({@link waitForTeamMembersList}) — `assignments/` or `users/`,
+ * whichever the console's generation reads.
  */
 export class AdminConsolePage {
   private readonly s = ADMIN_CONSOLE_SELECTORS;
@@ -56,8 +57,10 @@ export class AdminConsolePage {
    * It deliberately does **not** wait for a network response: the console caches
    * its queries, so a second visit to the same scope renders from cache and
    * fetches nothing. A spec that wants the request as evidence asks for it with
-   * {@link waitForAssignments} around the first load; everything else asserts
-   * the rendered table against the API directly.
+   * {@link waitForTeamMembersList} around the first load; everything else
+   * asserts the rendered table against the API directly.
+   *
+   * A caller who may view no team at all gets no table: see {@link open}.
    */
   async goto(scope?: string): Promise<void> {
     await this.page.goto(this.url(scope), { waitUntil: 'domcontentloaded' });
@@ -69,16 +72,36 @@ export class AdminConsolePage {
   }
 
   /**
-   * Runs `action` and returns the console's own assignments request for `scope`
-   * — the evidence that the MFE is served *and* talking to this installation's
-   * authz API, rather than rendering an empty shell.
+   * Opens the console and reports which answer it gave: its error view
+   * (`refused`), or the Team Members table with the Scope filter applied
+   * (`scoped`) or not (`unscoped`).
+   *
+   * On `main` the console checks up front whether the caller may view any course
+   * or library team, and one who may not gets its error view instead of the
+   * table (frontend-app-admin-console#222). `verawood` has no such check and
+   * renders the table, empty. A spec about what such a caller sees lists the
+   * answers it accepts.
    */
-  async waitForAssignments(scope: string | undefined, action: () => Promise<void>) {
-    const scoped = scope === undefined ? () => true : this.assignmentsRequestFor(scope);
+  async open(scope?: string): Promise<'refused' | 'scoped' | 'unscoped'> {
+    await this.page.goto(this.url(scope), { waitUntil: 'domcontentloaded' });
+    const table = this.page.locator(this.s.table).first();
+    const refusal = this.page.locator(this.s.errorViewAction).first();
+    await table.or(refusal).first().waitFor({ state: 'visible', timeout: TIMEOUTS.navigation });
+    if (!(await table.isVisible())) return 'refused';
+    return (await this.isFilterApplied(2)) ? 'scoped' : 'unscoped';
+  }
+
+  /**
+   * Runs `action` and returns the console's own Team Members list request for
+   * `scope` — the evidence that the MFE is served *and* talking to this
+   * installation's authz API, rather than rendering an empty shell.
+   */
+  async waitForTeamMembersList(scope: string | undefined, action: () => Promise<void>) {
+    const scoped = scope === undefined ? () => true : this.teamMembersRequestFor(scope);
     const [response] = await Promise.all([
       this.page.waitForResponse(
         (r) =>
-          r.url().includes(`${AUTHZ_BASE}/assignments/`) &&
+          teamMembersGroupingOf(r.url()) !== undefined &&
           r.request().method() === 'GET' &&
           scoped(r),
         { timeout: TIMEOUTS.navigation },
@@ -109,13 +132,13 @@ export class AdminConsolePage {
   }
 
   /**
-   * The console's own request for one scope's assignments — what a spec waits
-   * for when it wants the table to show a particular course or library.
+   * The console's own Team Members list request for one scope — what a spec
+   * waits for when it wants the table to show a particular course or library.
    */
-  assignmentsRequestFor(scope: string): (response: Response) => boolean {
+  teamMembersRequestFor(scope: string): (response: Response) => boolean {
     const encoded = authzScopeKey(scope);
     return (response: Response) =>
-      response.url().includes(`${AUTHZ_BASE}/assignments/`) &&
+      teamMembersGroupingOf(response.url()) !== undefined &&
       (response.url().includes(encoded) || response.url().includes(encodeURIComponent(scope)));
   }
 

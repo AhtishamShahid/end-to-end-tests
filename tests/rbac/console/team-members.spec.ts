@@ -5,7 +5,9 @@ import {
   fetchStudioUsername,
   listAssignments,
   listRoleUsers,
+  listTeamMembers,
 } from '../../../src/api';
+import { TEAM_MEMBER_COLUMN_COUNT } from '../../../src/pages/admin-console';
 import { checkA11y } from '../../../src/a11y';
 import { issue, knownGap, testId } from '../../../src/reporting';
 import { RBAC_TAGS, ADMIN_CONSOLE_A11Y_BASELINE } from '../helpers';
@@ -14,10 +16,14 @@ import { RBAC_TAGS, ADMIN_CONSOLE_A11Y_BASELINE } from '../helpers';
  * The console's **Team Members** tab: what the table lists, how it narrows, and
  * what it marks.
  *
- * The table is one row per **assignment**, not per user, so the course's creator
- * — carrying both `course_admin` and `course_staff` after migration — is two
- * rows. The oracle throughout is `/api/authz/v1/assignments/`: the console is
- * asserted to render what the API returns, never to contain a particular label.
+ * What a row is depends on the console's generation. `verawood` lists one row
+ * per **assignment** from `/api/authz/v1/assignments/`, so the course's creator —
+ * carrying both `course_admin` and `course_staff` after migration — is two rows.
+ * `main` lists one row per **user** from `/api/authz/v1/users/`, with the rest of
+ * that user's roles behind a "+N more roles" toggle
+ * (frontend-app-admin-console#222). The table reports which it renders, and the
+ * oracle is `listTeamMembers` under that grouping: the console is asserted to
+ * render what the API returns, never to contain a particular label.
  */
 test.describe(
   'Roles and Permissions console — Team Members',
@@ -26,7 +32,7 @@ test.describe(
     test.describe.configure({ timeout: TIMEOUTS.contentTest });
 
     test(
-      'lists one row per role assignment, marks your own, and pages at ten',
+      'lists the team, marks your own row, and pages at ten',
       { annotation: testId('TC-00561') },
       async ({ page, config, adminConsole, authzTarget, studioAuthorSession }) => {
         void studioAuthorSession;
@@ -34,32 +40,44 @@ test.describe(
         // record of it: the console marks rows by the signed-in account.
         const me = await fetchStudioUsername(page.request, config);
         const scoped = await listRoleUsers(page.request, config, authzTarget.courseKey);
-        const assignments = await listAssignments(page.request, config, {
+
+        await adminConsole.console.goto(authzTarget.courseKey);
+        const table = adminConsole.teamMembers;
+        const grouping = await table.grouping();
+        const team = await listTeamMembers(page.request, config, grouping, {
           scopes: [authzTarget.courseKey],
           pageSize: 50,
         });
 
-        await adminConsole.console.goto(authzTarget.courseKey);
-        const table = adminConsole.teamMembers;
+        // The grouping's columns, and as many rows as the API reports in scope.
+        await expect(table.columnHeaders).toHaveCount(TEAM_MEMBER_COLUMN_COUNT[grouping]);
+        await expect(table.rows).toHaveCount(team.count);
 
-        // Six columns, and as many rows as the API reports assignments in scope.
-        await expect(table.columnHeaders).toHaveCount(6);
-        await expect(table.rows).toHaveCount(assignments.count);
-
-        // One row per assignment: the author holds two roles on a course it
-        // created and migrated, and appears once for each.
+        // The author holds two roles on a course it created and migrated: two
+        // rows grouped by assignment, or one row whose other role sits behind
+        // the "more roles" toggle grouped by user — as many rows as the API
+        // answers for the author, and a toggle on each that stands for more.
         const mine = table.rowsFor(me);
         const myRoles = scoped.members.find((member) => member.username === me)?.roles ?? [];
-        await expect(mine).toHaveCount(myRoles.length);
         expect(myRoles.length).toBeGreaterThan(1);
+        const myRows = team.rows.filter((row) => row.username === me);
+        expect(myRows.reduce((sum, row) => sum + row.assignmentCount, 0)).toBe(myRoles.length);
+        await expect(mine).toHaveCount(myRows.length);
+        await expect(table.moreRolesToggle(mine)).toHaveCount(
+          myRows.filter((row) => row.assignmentCount > 1).length,
+        );
 
-        // The signed-in user's own rows carry the "(Me)" marker; other rows do not.
-        await expect(table.currentUserMarker(mine.first())).toBeVisible();
+        // The signed-in user's own row is marked as theirs.
+        await expect.poll(() => table.isMarkedAsCurrentUser(mine.first(), me)).toBe(true);
 
-        // Every row the console can name renders its role marker; each row's
-        // scope cell names the course the table is filtered to.
+        // The role marker is rendered, and the scope cell names the course the
+        // table is filtered to — by key when grouped by assignment, by the
+        // display name the API pairs with it when grouped by user.
         await expect(table.roleMarker(mine.first())).toHaveCount(1);
-        await expect(table.cell(mine.first(), 'scope')).toContainText(authzTarget.courseKey);
+        expect(myRows[0]?.first?.scope).toBe(authzTarget.courseKey);
+        await expect(await table.cell(mine.first(), 'scope')).toContainText(
+          myRows[0]?.scopeName ?? authzTarget.courseKey,
+        );
 
         // The footer's pager exists and is at its only page for a table this size.
         await expect(table.footer).toBeVisible();
@@ -85,12 +103,13 @@ test.describe(
         const me = await fetchStudioUsername(page.request, config);
         await adminConsole.console.goto(authzTarget.courseKey);
         const table = adminConsole.teamMembers;
+        const grouping = await table.grouping();
 
         // The API answers what the table should show; `toHaveCount` retries until
         // the render settles, so nothing here races the console's own fetching.
-        const inScope = async (query: Parameters<typeof listAssignments>[2] = {}) =>
+        const inScope = async (query: Parameters<typeof listTeamMembers>[3] = {}) =>
           (
-            await listAssignments(page.request, config, {
+            await listTeamMembers(page.request, config, grouping, {
               scopes: [authzTarget.courseKey],
               pageSize: 50,
               ...query,

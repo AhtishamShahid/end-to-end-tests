@@ -92,14 +92,19 @@ export class UserAuditPage {
 
   /** Expands a row's permission list. The console closes whichever was open. */
   async expandPermissions(row: Locator): Promise<void> {
-    await row.locator(this.s.auditExpandPermissions).first().click();
-    // `action`, not `optionalOverlay`: the list is rendered from data the row
-    // already has, but under parallel load the console hydrates late enough for
-    // a five-second budget to be tight.
-    await this.permissionDetailRows.first().waitFor({
-      state: 'visible',
-      timeout: TIMEOUTS.action,
-    });
+    const toggle = row.locator(this.s.auditExpandPermissions).first();
+    const opened = this.permissionDetailRows.first();
+    await toggle.click();
+    try {
+      await opened.waitFor({ state: 'visible', timeout: TIMEOUTS.optionalOverlay });
+    } catch {
+      // Under parallel load a click that lands before the console has hydrated
+      // the row is dropped silently. Click once more — only if nothing opened
+      // meanwhile, since a second click on an open row would close it — and
+      // give the list the full `action` budget.
+      if (!(await opened.isVisible())) await toggle.click();
+      await opened.waitFor({ state: 'visible', timeout: TIMEOUTS.action });
+    }
   }
 
   /** Opens the remove-role confirmation for a row. */

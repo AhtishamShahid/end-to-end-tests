@@ -3,7 +3,7 @@ import type { Route } from '@playwright/test';
 import { expect, test } from '../../../src/fixtures';
 import { checkA11y } from '../../../src/a11y';
 import { ADMIN_CONSOLE_SELECTORS, TIMEOUTS } from '../../../src/config';
-import { AUTHZ_BASE } from '../../../src/api';
+import { teamMembersGroupingOf } from '../../../src/api';
 import { issue, testId } from '../../../src/reporting';
 import { ADMIN_CONSOLE_A11Y_BASELINE, RBAC_TAGS } from '../helpers';
 
@@ -23,6 +23,11 @@ import { ADMIN_CONSOLE_A11Y_BASELINE, RBAC_TAGS } from '../helpers';
  * failed list as a **toast with a retry** over an empty table, and its only
  * full-page error view is the 404 (`RBAC-004`), so each case is asserted
  * against what the console actually renders.
+ *
+ * The two cases that need the Team Members table take `authoringLibrary`
+ * although they never look at it: creating it makes the author a
+ * `library_admin`, and on `main` the console refuses its home page to a caller
+ * who may view no team at all (frontend-app-admin-console#222).
  */
 test.describe(
   'Roles and Permissions console — error views',
@@ -33,20 +38,29 @@ test.describe(
     test(
       'sends a caller whose session has gone to sign in again',
       { annotation: testId('TC-00437') },
-      async ({ page, context, adminConsole, studioAuthorSession }) => {
+      async ({ page, context, adminConsole, authoringLibrary, studioAuthorSession }) => {
         void studioAuthorSession;
+        void authoringLibrary;
         await adminConsole.console.goto();
         await expect(adminConsole.teamMembers.table).toBeVisible();
 
-        // The sheet's own recipe: drop the session and revisit.
+        // The sheet's own recipe: drop the session and revisit. Only the browser
+        // forgets it — the server-side session stays live — so handing the
+        // cookies back afterwards lets the library's teardown, which rides this
+        // context, still delete it.
+        const session = await context.cookies();
         await context.clearCookies();
-        await page.goto(adminConsole.console.url(), { waitUntil: 'domcontentloaded' });
+        try {
+          await page.goto(adminConsole.console.url(), { waitUntil: 'domcontentloaded' });
 
-        // The console hands over to the sign-in screen, carrying where to return
-        // to, and shows none of its own content.
-        await page.waitForURL(/\/(authn\/)?login/, { timeout: TIMEOUTS.navigation });
-        expect(new URL(page.url()).searchParams.get('next') ?? '').toContain('/authz');
-        await expect(adminConsole.teamMembers.table).toHaveCount(0);
+          // The console hands over to the sign-in screen, carrying where to
+          // return to, and shows none of its own content.
+          await page.waitForURL(/\/(authn\/)?login/, { timeout: TIMEOUTS.navigation });
+          expect(new URL(page.url()).searchParams.get('next') ?? '').toContain('/authz');
+          await expect(adminConsole.teamMembers.table).toHaveCount(0);
+        } finally {
+          await context.addCookies(session);
+        }
       },
     );
 
@@ -108,41 +122,64 @@ test.describe(
     test(
       'reports a failed list, retries it once, and leaks nothing when the caller moves on',
       { annotation: [testId('TC-00440'), testId('TC-00441'), testId('TC-00443')] },
-      async ({ page, adminConsole, studioAuthorSession }) => {
+      async ({ page, adminConsole, authoringLibrary, studioAuthorSession }) => {
         void studioAuthorSession;
-        const route = `**${AUTHZ_BASE}/assignments/**`;
-        let attempts = 0;
-        let held: Route | undefined;
+        void authoringLibrary;
+        // The Team Members list, whichever the console's generation reads
+        // (`assignments/` or `users/`) — and no other authz route.
+        const route = (url: URL) => teamMembersGroupingOf(url) !== undefined;
+        let failing: string | undefined;
+        let reported = false;
+        let retries = 0;
+        const held: Route[] = [];
+        const fail = (handler: Route) =>
+          handler.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: '{"detail":"e2e injected failure"}',
+          });
 
-        // ADR-0003: one route, failing only. The second attempt is held open so
-        // the caller can navigate away mid-flight, which is TC-00443's premise.
+        // ADR-0003: one route, failing only. The console's first list query
+        // fails, every time it is asked — on `main` the query client retries a
+        // failed query on its own (React Query's default: three more times,
+        // with back-off) before reporting it. Any other list query is held, so
+        // only that one failure is ever reported. Once it is, the next request
+        // is the caller's retry, and it is held open too so the caller can
+        // navigate away mid-flight, which is TC-00443's premise.
         await page.route(route, async (handler) => {
-          attempts += 1;
-          if (attempts === 1) {
-            await handler.fulfill({
-              status: 500,
-              contentType: 'application/json',
-              body: '{"detail":"e2e injected failure"}',
-            });
+          const url = handler.request().url();
+          failing ??= url;
+          if (reported) retries += 1;
+          if (!reported && url === failing) {
+            await fail(handler);
             return;
           }
-          held = handler;
+          held.push(handler);
         });
 
         try {
           await page.goto(adminConsole.console.url(), { waitUntil: 'domcontentloaded' });
 
           // TC-00440: the failure is reported, and no rows are rendered behind it.
-          await expect(adminConsole.console.toast).toBeVisible();
+          // The budget covers the console's own retries before it reports.
+          await expect(adminConsole.console.toast).toBeVisible({ timeout: TIMEOUTS.navigation });
           await expect(adminConsole.console.toast.locator('button')).not.toHaveCount(0);
           await expect(adminConsole.teamMembers.rows).toHaveCount(0);
+          await expect(adminConsole.console.toast).toHaveCount(1);
+          reported = true;
+          const outstanding = held.length;
 
           // TC-00441: the retry is one request, and the report clears as it goes,
           // so there is nothing left to press twice.
           const retry = adminConsole.console.toast.locator('button').last();
           await retry.click();
+          // The console is fetching again: a new request, or — where a second
+          // list query was already held in flight (`verawood` fires two while it
+          // loads) — that one, which the retry may simply wait on. Never more
+          // than one new request either way.
           await expect(adminConsole.console.toast).toHaveCount(0);
-          expect(attempts).toBe(2);
+          await expect.poll(() => retries + outstanding).toBeGreaterThan(0);
+          expect(retries).toBeLessThanOrEqual(1);
 
           // TC-00443: leave while that retry is still in flight.
           await page.goto(adminConsole.assignRole.url(), { waitUntil: 'domcontentloaded' });
@@ -151,13 +188,9 @@ test.describe(
 
           // Even once the abandoned request finally fails, its error does not
           // surface on the page the caller moved to.
-          await held?.fulfill({
-            status: 500,
-            contentType: 'application/json',
-            body: '{"detail":"e2e injected failure"}',
-          });
+          for (const handler of held) await fail(handler);
           await expect(adminConsole.console.toast).toHaveCount(0);
-          expect(attempts).toBe(2);
+          expect(retries).toBeLessThanOrEqual(1);
         } finally {
           await page.unroute(route);
         }

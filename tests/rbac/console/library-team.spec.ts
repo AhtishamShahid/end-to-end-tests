@@ -1,12 +1,6 @@
 import { expect, test } from '../../../src/fixtures';
 import { TIMEOUTS } from '../../../src/config';
-import {
-  LIBRARY_ROLES,
-  fetchLibrary,
-  listAssignments,
-  listLibraries,
-  listRoleUsers,
-} from '../../../src/api';
+import { fetchLibrary, listLibraries, listRoleUsers, listTeamMembers } from '../../../src/api';
 import { seedScopeAssignments } from '../../../src/steps';
 import { testId } from '../../../src/reporting';
 import { RBAC_TAGS } from '../helpers';
@@ -29,32 +23,33 @@ test.describe(
     test(
       'pages the team at ten rows',
       { annotation: testId('TC-00374') },
-      async ({ page, config, adminConsole, authoringLibrary, studioAuthorSession, rbacCast }) => {
+      async ({ page, config, adminConsole, authoringLibrary, studioAuthorSession, teamRoster }) => {
         void studioAuthorSession;
         const library = authoringLibrary.id;
 
-        // The sheet wants a team of 12+. Rows are one per **assignment**, not per
-        // user, so three accounts holding all four library roles are twelve rows
-        // — plus the author's own, which creating the library granted.
-        const colleagues = [
-          await rbacCast('teamPagerA'),
-          await rbacCast('teamPagerB'),
-          await rbacCast('teamPagerC'),
-        ];
+        // The sheet wants a team of 12+: eleven accounts with one role each, plus
+        // the author's own `library_admin`, which creating the library granted.
+        // One role per account makes that twelve rows in either grouping — by
+        // assignment (`verawood`) or by user (`main`) — so the pager is measured
+        // the same way on both.
+        const roster = await teamRoster(11);
         await seedScopeAssignments(
           page.request,
           config,
           library,
-          colleagues.map((colleague) => colleague.identity.username),
-          LIBRARY_ROLES,
+          roster.map((account) => account.username),
+          ['library_user'],
         );
-        const total = (
-          await listAssignments(page.request, config, { scopes: [library], pageSize: 50 })
-        ).count;
-        expect(total).toBeGreaterThan(12);
 
         await adminConsole.console.goto(library);
         const table = adminConsole.teamMembers;
+        const total = (
+          await listTeamMembers(page.request, config, await table.grouping(), {
+            scopes: [library],
+            pageSize: 50,
+          })
+        ).count;
+        expect(total).toBeGreaterThanOrEqual(12);
 
         // Ten rows on the first page, the rest on the second, and the pager's
         // ends are disabled where there is nowhere further to go.
@@ -98,16 +93,15 @@ test.describe(
           status: 403,
         });
 
-        // The console renders for them — it is not library-specific — but with
-        // the library's scope preset it has nothing to show: no team, no rows.
-        // (It shows an empty table rather than an access-denied view; the
-        // refusals above are what actually protects the library.) It is the
-        // outsider's own browser: the worker author is the library's admin, and
-        // the console lists the viewer's own assignment ("(Me)").
+        // The console shows them nothing of the library either, in the outsider's
+        // own browser. `main` refuses outright — it checks up front whether the
+        // caller may view any team, and shows its error view to one who may not.
+        // `verawood` has no such check: it renders, with the library's scope
+        // preset, an empty table. Either way there are no rows; the refusals
+        // above are what actually protects the library.
         const outsiderConsole = adminConsole.consoleFor(outsider.page);
-        await outsiderConsole.goto(library);
+        expect(['refused', 'scoped']).toContain(await outsiderConsole.open(library));
         await expect(adminConsole.teamMembersFor(outsider.page).rows).toHaveCount(0);
-        expect(await outsiderConsole.isFilterApplied(2)).toBe(true);
       },
     );
   },

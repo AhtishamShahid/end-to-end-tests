@@ -65,8 +65,9 @@ test.describe(
         // opened for: it asks this installation's authz API about that course —
         // the gated spec's proof that the surface is really there — the first tab
         // is selected, and the scope filter shows as applied.
-        const opened = await adminConsole.console.waitForAssignments(authzTarget.courseKey, () =>
-          adminConsole.console.goto(authzTarget.courseKey),
+        const opened = await adminConsole.console.waitForTeamMembersList(
+          authzTarget.courseKey,
+          () => adminConsole.console.goto(authzTarget.courseKey),
         );
         expect(opened.ok()).toBe(true);
         await expect(adminConsole.console.tabs.first()).toHaveAttribute('aria-selected', 'true');
