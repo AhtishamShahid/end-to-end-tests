@@ -34,8 +34,8 @@ export type TeamMemberFilter = keyof typeof TEAM_MEMBER_FILTERS;
  *
  * What a row *is* depends on the console's generation ({@link grouping}): one
  * row per role assignment read from `assignments/` (`verawood`), or one row per
- * user read from `users/` (`main`). This object detects which from the rendered
- * table and takes either list request as its own, so a spec stays generation-free
+ * user read from `users/` (`main`). This object detects which from the
+ * list request it makes and takes either as its own, so a spec stays generation-free
  * by counting against `listTeamMembers` under the grouping this reports.
  *
  * Rows are located by the **email** they carry, which is the suite's own data
@@ -64,23 +64,33 @@ export class TeamMembersTable {
     this.footer = this.panel.locator(this.s.footer);
     this.previousPage = this.footer.locator(this.s.pagerButton).first();
     this.nextPage = this.footer.locator(this.s.pagerButton).last();
+    // The first list request the page makes says which grouping it renders.
+    // Later visits may render from the console's cache and fetch nothing, so
+    // the request is recorded as it happens rather than awaited on demand.
+    page.on('request', (request) => {
+      const grouping = teamMembersGroupingOf(request.url());
+      if (grouping !== undefined && request.method() === 'GET') this.seen ??= grouping;
+    });
   }
 
-  private detected: TeamMembersGrouping | undefined;
+  private seen: TeamMembersGrouping | undefined;
 
   /**
-   * Which grouping this console renders, read from the table once it is on
-   * screen: only the user-grouped table carries its own wrapper class.
+   * Which grouping this console renders, read from the list request it made to
+   * render the table — `assignments/` or `users/`, the change itself rather
+   * than any styling that came with it. Call it once the table has loaded on
+   * this page; the object must exist before that first load to see the request.
    */
   async grouping(): Promise<TeamMembersGrouping> {
-    if (this.detected === undefined) {
-      await this.table.waitFor({ state: 'visible', timeout: TIMEOUTS.navigation });
-      this.detected =
-        (await this.panel.locator(this.s.teamMembersUserGrouped).count()) > 0
-          ? 'user'
-          : 'assignment';
+    await this.table.waitFor({ state: 'visible', timeout: TIMEOUTS.navigation });
+    if (this.seen === undefined) {
+      throw new Error(
+        'The Team Members table rendered without this page object seeing its list request ' +
+          '(GET authz assignments/ or users/), so its grouping is unknown. Construct the ' +
+          'TeamMembersTable before the page first opens the console.',
+      );
     }
-    return this.detected;
+    return this.seen;
   }
 
   /**

@@ -48,13 +48,6 @@ export const ADMIN_CONSOLE_SELECTORS = {
   /** The chip a filter adds below the row; its button clears that filter. */
   filterChipClear: 'button.pgn__chip__icon-after, .pgn__chip button',
 
-  /**
-   * The wrapper class the user-grouped Team Members table carries (`main`). The
-   * assignment-grouped table (`verawood`) has none, so its presence is how the
-   * page object tells the two layouts apart.
-   */
-  teamMembersUserGrouped: '.team-members-table',
-
   /** Paragon's data table, its rows and its footer. */
   table: 'table.pgn__data-table',
   columnHeader: 'th[role="columnheader"]',
