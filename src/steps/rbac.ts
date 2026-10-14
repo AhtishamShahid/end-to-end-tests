@@ -196,12 +196,14 @@ export async function disableAuthzForCourse(
 }
 
 /**
- * Gives every actor each of `roles` in one scope, so a spec can reach a row
- * count the console pages at without provisioning a person per row.
+ * Gives every actor each of `roles` in one scope — the setup for a console
+ * case that needs a team of a given shape.
  *
- * Assignments are per role, not per user: three accounts holding four library
- * roles each are twelve rows (measured), which is what the sheet's
- * "12+ members" pagination case needs.
+ * How many Team Members rows that makes depends on the console's grouping: one
+ * per assignment (`verawood`) or one per user (`main`). A case that counts rows
+ * on both gives each account a single role, so the two agree — the pager case
+ * seeds an eleven-account `teamRoster` with one library role each, which with
+ * the library's creator is the sheet's "12+ members".
  */
 export async function seedScopeAssignments(
   request: APIRequestContext,

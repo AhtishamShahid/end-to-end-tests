@@ -231,9 +231,10 @@ export interface AuthzAssignment {
   readonly permissionCount: number;
   readonly isSuperadmin: boolean;
   /**
-   * The course or library's display name. Only the inline assignments of
-   * `users/` carry it (openedx-authz 1.24.0); empty elsewhere, and for a glob
-   * scope or a scope whose resource is gone.
+   * The course or library's display name. The inline assignments of `users/`
+   * carry it from openedx-authz 1.24.0 and `users/<username>/assignments/`
+   * from 1.33.0; empty elsewhere, and for a glob scope or a scope whose
+   * resource is gone.
    */
   readonly scopeDisplayName: string;
   /** Present on `assignments/`; empty on `users/<username>/assignments/`. */
