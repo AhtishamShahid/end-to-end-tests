@@ -37,7 +37,7 @@ test.describe(
 
     test(
       'imports a new taxonomy from JSON and from CSV',
-      { annotation: testId('TC-00259') },
+      { tag: '@smoke', annotation: testId('TC-00259') },
       async ({ config, taxonomyAdmin }) => {
         const created: number[] = [];
         try {
@@ -70,7 +70,7 @@ test.describe(
 
     test(
       'assigns an org and the taxonomy becomes available to that org',
-      { annotation: testId('TC-00260') },
+      { tag: '@smoke', annotation: testId('TC-00260') },
       async ({ config, taxonomyAdmin }) => {
         const org = taxonomyAdmin.org;
         const created: number[] = [];
@@ -109,7 +109,7 @@ test.describe(
 
     test(
       'exports the taxonomy as CSV and JSON',
-      { annotation: testId('TC-00261') },
+      { tag: '@smoke', annotation: testId('TC-00261') },
       async ({ config, taxonomyAdmin }) => {
         const created: number[] = [];
         try {
@@ -136,7 +136,7 @@ test.describe(
 
     test(
       're-imports a modified file and the new tag appears',
-      { annotation: testId('TC-00262') },
+      { tag: '@smoke', annotation: testId('TC-00262') },
       async ({ config, taxonomyAdmin }) => {
         const created: number[] = [];
         try {
@@ -164,7 +164,7 @@ test.describe(
 
     test(
       'downloads the CSV and JSON import templates',
-      { annotation: testId('TC-00263') },
+      { tag: '@smoke', annotation: testId('TC-00263') },
       async ({ taxonomyAdmin }) => {
         await taxonomyAdmin.list.goto();
         const csv = await taxonomyAdmin.list.downloadTemplate('csv');
@@ -176,7 +176,7 @@ test.describe(
 
     test(
       'deletes a taxonomy and it is gone from the org and the API',
-      { annotation: testId('TC-00264') },
+      { tag: '@smoke', annotation: testId('TC-00264') },
       async ({ config, taxonomyAdmin }) => {
         const org = taxonomyAdmin.org;
         await taxonomyAdmin.list.goto();

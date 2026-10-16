@@ -13,7 +13,7 @@ test.describe('Course home outline', () => {
   test(
     'expands and collapses every section',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning'],
       annotation: testId('TC-00025'),
     },
     async ({ page, courseOutlinePage, courseOutline, enrolledCourse }) => {
@@ -50,7 +50,7 @@ test.describe('Course home outline', () => {
   test(
     'the outline meets WCAG 2.2 AA',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning'],
       annotation: testId('TC-00025'),
     },
     async ({ page, courseOutlinePage, enrolledCourse }) => {

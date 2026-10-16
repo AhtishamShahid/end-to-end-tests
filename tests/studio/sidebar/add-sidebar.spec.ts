@@ -21,7 +21,7 @@ test.describe(
 
     test(
       'opens on the outline with Add New and Add Existing tabs',
-      { annotation: testId('TC-00491') },
+      { tag: '@smoke', annotation: testId('TC-00491') },
       async ({
         page,
         config,
@@ -52,7 +52,7 @@ test.describe(
 
     test(
       'opens on the unit page with Add New and Add Existing tabs',
-      { annotation: testId('TC-00496') },
+      { tag: '@smoke', annotation: testId('TC-00496') },
       async ({
         page,
         config,

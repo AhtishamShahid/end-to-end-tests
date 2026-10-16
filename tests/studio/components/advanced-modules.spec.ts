@@ -206,7 +206,7 @@ const ROWS: readonly Row[] = [
     testId: 'TC-00124',
     category: 'lti_consumer',
     offeredByDefault: true,
-    tags: ['@lti'],
+    tags: ['@lti', '@smoke'],
     // Graded, with no tool to launch: the learner is offered its points.
     configure: ({ request, config, blockKey }) =>
       updateXBlock(request, config, blockKey, { metadata: { has_score: true, weight: 5 } }),
@@ -223,7 +223,7 @@ const ROWS: readonly Row[] = [
     offeredByDefault: false,
     tags: ['@edx-sga'],
   }),
-  row({ testId: 'TC-00129', category: 'survey', offeredByDefault: true }),
+  row({ testId: 'TC-00129', category: 'survey', offeredByDefault: true, tags: ['@smoke'] }),
   row({
     testId: 'TC-00133',
     category: 'word_cloud',

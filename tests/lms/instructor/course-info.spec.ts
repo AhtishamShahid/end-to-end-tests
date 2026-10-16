@@ -81,7 +81,7 @@ test.describe('Instructor dashboard course info', { tag: [...INSTRUCTOR_TAGS] },
 
   test(
     'flags a course that has not started as upcoming',
-    { tag: '@regression', annotation: testId('TC-00516') },
+    { tag: '@smoke', annotation: testId('TC-00516') },
     async ({ page, config, futureCourse, instructorCourseInfo, studioAuthorSession }) => {
       void studioAuthorSession;
       await instructorCourseInfo.gotoTab(futureCourse.courseKey);

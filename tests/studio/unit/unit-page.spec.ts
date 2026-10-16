@@ -59,7 +59,7 @@ test.describe(
 
     test(
       'adds a new unit from the unit page',
-      { annotation: testId('TC-00199') },
+      { tag: '@smoke', annotation: testId('TC-00199') },
       async ({ page, config, studioUnitPage, authoringCourse, studioAuthorSession }) => {
         void studioAuthorSession;
         const unitKey = await buildUnit(page.request, config, authoringCourse.courseKey, {
@@ -120,7 +120,7 @@ test.describe(
 
     test(
       'publishes the unit from the unit page',
-      { annotation: testId('TC-00201') },
+      { tag: '@smoke', annotation: testId('TC-00201') },
       async ({
         page,
         config,

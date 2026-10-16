@@ -31,7 +31,7 @@ test.describe(
 
     test(
       'a learner with every preference off receives nothing',
-      { annotation: testId('TC-00477') },
+      { tag: '@smoke', annotation: testId('TC-00477') },
       async ({ page, config, forumCourse, notificationRecipient, studioAuthorSession }) => {
         void studioAuthorSession;
         const courseKey = forumCourse.courseKey;

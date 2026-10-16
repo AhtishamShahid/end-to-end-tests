@@ -13,7 +13,7 @@ import { expect, test } from '../../../src/fixtures';
 test.describe('Registration (authn MFE)', () => {
   test(
     'creates a new account and signs the learner in',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00002') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00002') },
     async ({ page, registrationPage, learnerIdentity }) => {
       await registerLearner(page, registrationPage, learnerIdentity);
 
@@ -38,7 +38,7 @@ test.describe('Registration (authn MFE)', () => {
 
   test(
     'rejects a duplicate email',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00002') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00002') },
     async ({ page, request, config, registrationPage, learnerIdentity }) => {
       // Seed the account first (portable API path), then try to reuse its email.
       await registerLearnerAccount(request, config, learnerIdentity);
@@ -55,7 +55,7 @@ test.describe('Registration (authn MFE)', () => {
 
   test(
     'rejects a weak password',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00002') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00002') },
     async ({ page, registrationPage }) => {
       await registrationPage.goto();
       await registrationPage.register(newLearnerIdentity({ password: '123' }));
@@ -68,7 +68,7 @@ test.describe('Registration (authn MFE)', () => {
 
   test(
     'rejects a missing required field',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00002') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00002') },
     async ({ page, registrationPage, learnerIdentity }) => {
       await registrationPage.goto();
       await registrationPage.fillForm(learnerIdentity);

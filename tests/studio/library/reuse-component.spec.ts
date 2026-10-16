@@ -38,7 +38,7 @@ test.describe(
 
     test(
       'a published library component added to a unit reaches the learner',
-      { annotation: testId('TC-00345') },
+      { tag: '@smoke', annotation: testId('TC-00345') },
       async (
         {
           page,
@@ -107,7 +107,7 @@ test.describe(
 
     test(
       'library updates are accepted or rejected from the unit page and the learner sees the result',
-      { annotation: testId('TC-00346') },
+      { tag: '@smoke', annotation: testId('TC-00346') },
       async (
         {
           page,

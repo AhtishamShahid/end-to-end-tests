@@ -58,7 +58,7 @@ test.describe(
 
     test(
       'lists the course updates under the Updates tool',
-      { annotation: testId('TC-00037') },
+      { tag: '@smoke', annotation: testId('TC-00037') },
       async ({ page, config, contentCourse, studioAuthorSession, roundTripLearner }) => {
         void studioAuthorSession;
         const { courseKey } = contentCourse;

@@ -31,7 +31,7 @@ test.describe(
 
     test(
       'shows a learner and their state on a problem',
-      { annotation: testId('TC-00521') },
+      { tag: '@smoke', annotation: testId('TC-00521') },
       async ({
         page,
         contentCourse,
@@ -70,7 +70,7 @@ test.describe(
 
     test(
       'rescores, overrides, resets attempts and deletes history for one learner',
-      { annotation: testId('TC-00522') },
+      { tag: '@smoke', annotation: testId('TC-00522') },
       async ({
         page,
         config,

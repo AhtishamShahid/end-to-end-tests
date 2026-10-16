@@ -37,7 +37,7 @@ test.describe(
     ] as const satisfies readonly { id: string; cadence: EmailCadence }[]) {
       test.fixme(
         `a ${cadence.toLowerCase()} digest summarises the learner's notifications`,
-        { annotation: [testId(id), DIGEST_GAP] },
+        { tag: '@smoke', annotation: [testId(id), DIGEST_GAP] },
         async ({ config, forumCourse, forumCast, mailboxLearner }) => {
           const learner = await mailboxLearner({
             cadences: [{ app: 'discussion', type: 'grouped_notification', cadence }],

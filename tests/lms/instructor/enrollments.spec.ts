@@ -28,7 +28,7 @@ test.describe(
 
     test(
       'enrolls an existing learner and invites an unknown e-mail address',
-      { annotation: testId('TC-00517') },
+      { tag: '@smoke', annotation: testId('TC-00517') },
       async ({
         page,
         config,
@@ -81,7 +81,7 @@ test.describe(
 
     test(
       'checks a learner’s enrollment status',
-      { annotation: testId('TC-00518') },
+      { tag: '@smoke', annotation: testId('TC-00518') },
       async ({
         page,
         config,

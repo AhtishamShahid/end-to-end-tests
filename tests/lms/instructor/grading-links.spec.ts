@@ -15,7 +15,7 @@ test.describe(
   () => {
     test(
       'opens the gradebook, the grading configuration and the Studio grading settings',
-      { annotation: testId('TC-00524') },
+      { tag: '@smoke', annotation: testId('TC-00524') },
       async ({ page, config, contentCourse, instructorGrading, studioAuthorSession }) => {
         void studioAuthorSession;
         const courseKey = contentCourse.courseKey;

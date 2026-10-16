@@ -30,7 +30,7 @@ test.describe(
 
     test(
       'creates a section from the Add Content sidebar',
-      { annotation: testId('TC-00349') },
+      { tag: '@smoke', annotation: testId('TC-00349') },
       async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
         void studioAuthorSession;
         const title = label('section', testInfo.testId);
@@ -54,7 +54,7 @@ test.describe(
 
     test(
       'creates a subsection under a section from the section page',
-      { annotation: testId('TC-00350') },
+      { tag: '@smoke', annotation: testId('TC-00350') },
       async (
         { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
         testInfo,
@@ -83,7 +83,7 @@ test.describe(
 
     test(
       'renames a section and a subsection from their pages',
-      { annotation: [testId('TC-00351'), testId('TC-00352')] },
+      { tag: '@smoke', annotation: [testId('TC-00351'), testId('TC-00352')] },
       async (
         { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
         testInfo,
@@ -126,7 +126,7 @@ test.describe(
 
     test(
       'publishes a subsection after a two-step confirmation',
-      { annotation: [testId('TC-00354'), testId('TC-00362')] },
+      { tag: '@smoke', annotation: [testId('TC-00354'), testId('TC-00362')] },
       async (
         { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
         testInfo,
@@ -174,7 +174,7 @@ test.describe(
 
     test(
       'asks for confirmation before publishing a section',
-      { annotation: testId('TC-00361') },
+      { tag: '@smoke', annotation: testId('TC-00361') },
       async (
         { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
         testInfo,
@@ -207,7 +207,7 @@ test.describe(
 
     test(
       'deletes a section; its subsections stay in the library',
-      { annotation: testId('TC-00355') },
+      { tag: '@smoke', annotation: testId('TC-00355') },
       async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
         void studioAuthorSession;
         const section = await createLibraryContainer(
@@ -244,7 +244,7 @@ test.describe(
 
     test(
       'deletes a subsection',
-      { annotation: testId('TC-00356') },
+      { tag: '@smoke', annotation: testId('TC-00356') },
       async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
         void studioAuthorSession;
         const subsection = await createLibraryContainer(

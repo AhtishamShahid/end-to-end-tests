@@ -110,7 +110,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'views the enabled taxonomies',
-        { annotation: testId(ids.view) },
+        { tag: '@smoke', annotation: testId(ids.view) },
         async ({
           page,
           config,
@@ -147,7 +147,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'searches for matching tags',
-        { annotation: testId(ids.search) },
+        { tag: '@smoke', annotation: testId(ids.search) },
         async ({
           page,
           config,
@@ -181,7 +181,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'browses nested child tags',
-        { annotation: testId(ids.browse) },
+        { tag: '@smoke', annotation: testId(ids.browse) },
         async ({
           page,
           config,
@@ -215,7 +215,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'adds a parent tag',
-        { annotation: testId(ids.addParent) },
+        { tag: '@smoke', annotation: testId(ids.addParent) },
         async ({
           page,
           config,
@@ -256,7 +256,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'adds a child tag, implying its parent',
-        { annotation: testId(ids.addChild) },
+        { tag: '@smoke', annotation: testId(ids.addChild) },
         async ({
           page,
           config,
@@ -301,7 +301,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'deletes a parent tag',
-        { annotation: testId(ids.deleteParent) },
+        { tag: '@smoke', annotation: testId(ids.deleteParent) },
         async ({
           page,
           config,
@@ -335,7 +335,7 @@ for (const { surface, ids } of SURFACES) {
 
       test(
         'deletes a child tag, removing its implied parent',
-        { annotation: testId(ids.deleteChild) },
+        { tag: '@smoke', annotation: testId(ids.deleteChild) },
         async ({
           page,
           config,

@@ -41,7 +41,7 @@ test.describe('Login (authn MFE)', () => {
 
   test(
     'rejects invalid credentials',
-    { tag: ['@regression', '@mfe-authn'], annotation: testId('TC-00003') },
+    { tag: ['@smoke', '@mfe-authn'], annotation: testId('TC-00003') },
     async ({ page, loginPage, learnerIdentity }) => {
       await loginPage.goto();
       await loginPage.signIn(learnerIdentity.email, 'wrong-password');

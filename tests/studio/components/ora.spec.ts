@@ -18,7 +18,7 @@ test.describe(
 
     test(
       'adds an Open Response Assessment a learner can see',
-      { annotation: testId('TC-00221') },
+      { tag: '@smoke', annotation: testId('TC-00221') },
       async ({ page, config, authoringCourse, studioAuthorSession, authoringCourseLearner }) => {
         void studioAuthorSession;
         const probeUnit = await emptyUnit(

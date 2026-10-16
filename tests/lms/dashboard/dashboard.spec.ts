@@ -15,7 +15,7 @@ test.describe('Learner dashboard', () => {
   test(
     'lists the courses the learner is enrolled in',
     {
-      tag: ['@regression', '@authenticated'],
+      tag: ['@smoke', '@authenticated'],
       annotation: testId('TC-00041'),
     },
     async ({ page, request, config, dashboardPage, enrolledCourse }) => {

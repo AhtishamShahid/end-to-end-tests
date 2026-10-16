@@ -46,7 +46,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'creates a unit from the Add Content sidebar',
-    { annotation: testId('TC-00336') },
+    { tag: '@smoke', annotation: testId('TC-00336') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const title = label('unit', testInfo.testId);
@@ -68,7 +68,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'adds a new component to a unit and it appears in the library',
-    { annotation: testId('TC-00337') },
+    { tag: '@smoke', annotation: testId('TC-00337') },
     async (
       {
         page,
@@ -114,7 +114,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'adds an existing library component to a unit',
-    { annotation: testId('TC-00338') },
+    { tag: '@smoke', annotation: testId('TC-00338') },
     async (
       {
         page,
@@ -160,7 +160,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'edits a component from within a unit and the change is global',
-    { annotation: testId('TC-00339') },
+    { tag: '@smoke', annotation: testId('TC-00339') },
     async (
       {
         page,
@@ -207,7 +207,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'publishes a component from within a unit',
-    { annotation: testId('TC-00340') },
+    { tag: '@smoke', annotation: testId('TC-00340') },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
       testInfo,
@@ -240,7 +240,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'removes a component from a unit while it stays in the library',
-    { annotation: testId('TC-00341') },
+    { tag: '@smoke', annotation: testId('TC-00341') },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
       testInfo,
@@ -279,7 +279,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
   // (2026-09-16), so it is asserted as intended behaviour with no defect marker.
   test(
     'deletes a component from within a unit, removing it from the library too',
-    { annotation: testId('TC-00342') },
+    { tag: '@smoke', annotation: testId('TC-00342') },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
       testInfo,
@@ -310,7 +310,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'deletes a unit after confirmation',
-    { annotation: testId('TC-00343') },
+    { tag: '@smoke', annotation: testId('TC-00343') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const unit = await unitWith(
@@ -337,7 +337,7 @@ test.describe('Content library units', { tag: ['@regression', ...LIBRARY_TAGS] }
 
   test(
     'publishes a unit from its landing page after a two-step confirmation',
-    { annotation: [testId('TC-00344'), testId('TC-00363')] },
+    { tag: '@smoke', annotation: [testId('TC-00344'), testId('TC-00363')] },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryContainerPage },
       testInfo,

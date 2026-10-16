@@ -33,7 +33,7 @@ test.describe('Content library components', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'creates a text block with the rich-text editor',
-    { annotation: testId('TC-00322') },
+    { tag: '@smoke', annotation: testId('TC-00322') },
     async (
       { page, config, studioAuthorSession, authoringLibrary, libraryPage, studioTextEditor },
       testInfo,
@@ -73,7 +73,7 @@ test.describe('Content library components', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'creates a video block from a YouTube URL',
-    { annotation: testId('TC-00323') },
+    { tag: '@smoke', annotation: testId('TC-00323') },
     async ({
       page,
       config,
@@ -174,7 +174,7 @@ test.describe('Content library components', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'publishes a component and its status updates',
-    { annotation: testId('TC-00321') },
+    { tag: '@smoke', annotation: testId('TC-00321') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const title = label('publish', testInfo.testId);
@@ -205,7 +205,7 @@ test.describe('Content library components', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'asks for confirmation before publishing a component and honours Cancel',
-    { annotation: testId('TC-00364') },
+    { tag: '@smoke', annotation: testId('TC-00364') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const title = label('confirm', testInfo.testId);
@@ -235,7 +235,7 @@ test.describe('Content library components', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'deletes a component after confirmation, and Cancel keeps it',
-    { annotation: testId('TC-00326') },
+    { tag: '@smoke', annotation: testId('TC-00326') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const title = label('delete', testInfo.testId);

@@ -23,7 +23,7 @@ test.describe(
 
     test(
       'rescores and resets attempts for every learner on a problem',
-      { annotation: testId('TC-00523') },
+      { tag: '@smoke', annotation: testId('TC-00523') },
       async ({
         page,
         config,

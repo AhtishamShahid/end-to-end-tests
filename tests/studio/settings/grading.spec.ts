@@ -177,7 +177,7 @@ test.describe('Grading', { tag: ['@studio', '@author', '@mfe-authoring'] }, () =
 
   test(
     'adds an assignment type',
-    { tag: '@regression', annotation: testId('TC-00288') },
+    { tag: '@smoke', annotation: testId('TC-00288') },
     async ({ page, config, authoredCourse, gradingPage, studioAuthorSession }) => {
       void studioAuthorSession;
       // Author Studio API off the browser's own session — see course-lifecycle.spec.ts / studio-browser-session-decays.

@@ -132,7 +132,7 @@ test.describe(
 
     test(
       'opens from an account’s audit view and cancels without assigning',
-      { annotation: [testId('TC-00564'), testId('TC-00402')] },
+      { tag: '@smoke', annotation: [testId('TC-00564'), testId('TC-00402')] },
       async ({
         page,
         config,
@@ -223,6 +223,7 @@ test.describe(
     test(
       'offers the Assign Role action only to an account that may manage the team',
       {
+        tag: '@smoke',
         annotation: [
           testId('TC-00396'),
           issue('https://github.com/openedx/wg-build-test-release/issues/603'),

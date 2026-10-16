@@ -28,6 +28,7 @@ test.describe('Library public read access', { tag: ['@regression', ...LIBRARY_TA
   test(
     'the admin turns public read on and off; an unaffiliated Studio user gains and loses read access',
     {
+      tag: '@smoke',
       annotation: [testId('TC-00333'), testId('TC-00420'), testId('TC-00421'), testId('TC-00422')],
     },
     async ({
@@ -83,7 +84,7 @@ test.describe('Library public read access', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'a member without the manage-team right sees the switch read-only, off and on',
-    { annotation: [testId('TC-00423'), testId('TC-00424')] },
+    { tag: '@smoke', annotation: [testId('TC-00423'), testId('TC-00424')] },
     async ({
       page,
       config,
@@ -114,7 +115,7 @@ test.describe('Library public read access', { tag: ['@regression', ...LIBRARY_TA
 
   test(
     'the course picker offers a library to unaffiliated users only while public read is on',
-    { annotation: [testId('TC-00425'), testId('TC-00426')] },
+    { tag: '@smoke', annotation: [testId('TC-00425'), testId('TC-00426')] },
     async (
       {
         page,

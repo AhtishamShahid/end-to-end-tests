@@ -28,7 +28,7 @@ test.describe('Courseware outline sidebar', () => {
   test(
     'opens a unit from the sidebar and renders its content',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning', '@courseware-navigation-sidebar'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning', '@courseware-navigation-sidebar'],
       annotation: testId('TC-00051'),
     },
     async ({ page, unitPage, courseOutline, completionUnits, enrolledCourse }) => {
@@ -159,7 +159,7 @@ test.describe('Courseware outline sidebar', () => {
   test(
     'goes back to the course outline and into another section without leaving the unit',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning', '@courseware-navigation-sidebar'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning', '@courseware-navigation-sidebar'],
       annotation: testId('TC-00049'),
     },
     async ({ page, request, config, unitPage, courseOutline, enrolledCourse }) => {
@@ -207,7 +207,7 @@ test.describe('Courseware outline sidebar', () => {
   test(
     'expands and collapses a subsection to show its units',
     {
-      tag: ['@regression', '@authenticated', '@mfe-learning', '@courseware-navigation-sidebar'],
+      tag: ['@smoke', '@authenticated', '@mfe-learning', '@courseware-navigation-sidebar'],
       annotation: testId('TC-00050'),
     },
     async ({ page, request, config, unitPage, courseOutline, enrolledCourse }) => {

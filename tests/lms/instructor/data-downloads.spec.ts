@@ -127,7 +127,7 @@ test.describe(
     for (const report of REPORTS) {
       test(
         `generates and downloads the ${report.title} report`,
-        { annotation: testId(report.id) },
+        { tag: '@smoke', annotation: testId(report.id) },
         async ({ page, config, contentCourse, instructorDataDownloads, studioAuthorSession }) => {
           void studioAuthorSession;
           await expectReportDownloaded(
@@ -143,7 +143,7 @@ test.describe(
 
     test(
       `generates and downloads the ${CERTIFICATES_REPORT.title} report`,
-      { tag: '@certificates', annotation: testId(CERTIFICATES_REPORT.id) },
+      { tag: ['@certificates', '@smoke'], annotation: testId(CERTIFICATES_REPORT.id) },
       async ({
         page,
         config,
@@ -167,7 +167,7 @@ test.describe(
 
     test(
       'generates and downloads the problem responses report for a problem',
-      { annotation: testId('TC-00529') },
+      { tag: '@smoke', annotation: testId('TC-00529') },
       async ({
         page,
         config,

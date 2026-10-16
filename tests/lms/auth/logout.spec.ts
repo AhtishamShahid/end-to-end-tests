@@ -17,7 +17,7 @@ import { expect, test } from '../../../src/fixtures';
 test.describe('Logout', () => {
   test(
     'signing out clears the session across declared origins',
-    { tag: '@regression', annotation: testId('TC-00003') },
+    { tag: '@smoke', annotation: testId('TC-00003') },
     async ({ page, request, config }) => {
       const identity = await provisionLearnerAccount(request, config);
       await signIn(page, config, {

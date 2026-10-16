@@ -74,7 +74,7 @@ test.describe(
 
     test(
       'an instructor post with "Notify all learners" reaches a learner with default preferences',
-      { annotation: testId('TC-00459') },
+      { tag: '@smoke', annotation: testId('TC-00459') },
       async ({ page, config, forumCourse, notificationRecipient, studioAuthorSession }) => {
         void studioAuthorSession;
         const recipient = await notificationRecipient();

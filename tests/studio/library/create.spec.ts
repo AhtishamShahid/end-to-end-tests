@@ -21,7 +21,7 @@ import { LIBRARY_A11Y_BASELINE, LIBRARY_TAGS, label } from './helpers';
 test.describe('Content library creation', { tag: ['@regression', ...LIBRARY_TAGS] }, () => {
   test(
     'creates a new library from Studio Home',
-    { annotation: testId('TC-00327') },
+    { tag: '@smoke', annotation: testId('TC-00327') },
     async (
       { page, config, studioAuthorSession, studioHomePage, createLibraryPage, libraryPage },
       testInfo,

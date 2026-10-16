@@ -26,7 +26,7 @@ test.describe('Content library clipboard', { tag: ['@regression', ...LIBRARY_TAG
 
   test(
     'copies a library component to the clipboard',
-    { annotation: testId('TC-00334') },
+    { tag: '@smoke', annotation: testId('TC-00334') },
     async ({ page, config, studioAuthorSession, authoringLibrary, libraryPage }, testInfo) => {
       void studioAuthorSession;
       const block = await authorTextBlock(
@@ -54,7 +54,7 @@ test.describe('Content library clipboard', { tag: ['@regression', ...LIBRARY_TAG
 
   test(
     'pastes clipboard content into a library from a course and from another library',
-    { annotation: testId('TC-00335') },
+    { tag: '@smoke', annotation: testId('TC-00335') },
     async ({
       page,
       config,

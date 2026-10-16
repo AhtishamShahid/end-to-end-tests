@@ -37,7 +37,7 @@ test.describe(
 
     test(
       'authors each common problem type and the learner is graded on it',
-      { annotation: testId('TC-00216') },
+      { tag: '@smoke', annotation: testId('TC-00216') },
       async ({ page, config, authoringCourse, studioAuthorSession, authoringCourseLearner }) => {
         void studioAuthorSession;
         // One unit per type, each holding that problem, published.
@@ -87,7 +87,7 @@ test.describe(
 
     test(
       "the unit page's problem picker offers every common type",
-      { annotation: testId('TC-00216') },
+      { tag: '@smoke', annotation: testId('TC-00216') },
       async ({ page, config, studioUnitPage, authoringCourse, studioAuthorSession }) => {
         void studioAuthorSession;
         const section = await buildSection(

@@ -25,7 +25,7 @@ test.describe(
 
     test(
       'publishes a unit from its card menu and the learner can reach it',
-      { annotation: testId('TC-00147') },
+      { tag: '@smoke', annotation: testId('TC-00147') },
       async ({
         page,
         config,
@@ -63,7 +63,7 @@ test.describe(
 
     test(
       'publishes a subsection from its card menu and the learner can reach its unit',
-      { annotation: testId('TC-00148') },
+      { tag: '@smoke', annotation: testId('TC-00148') },
       async ({
         page,
         config,
@@ -99,7 +99,7 @@ test.describe(
 
     test(
       'publishes a section from its card menu and the learner can reach its unit',
-      { annotation: testId('TC-00149') },
+      { tag: '@smoke', annotation: testId('TC-00149') },
       async ({
         page,
         config,
