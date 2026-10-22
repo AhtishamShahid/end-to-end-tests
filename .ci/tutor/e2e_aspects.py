@@ -9,6 +9,12 @@ analytics cases need it, and makes it reachable on the runner:
   Analytics sidebar and card buttons (`analytics-in-context`, TC-00312–00316).
   It changes what the MFE image installs, so the image variant is built with
   this plugin enabled too (`build_tutor_main_images.yml`).
+- ASPECTS_COURSE_STRUCTURE_REFRESH(_RANDOMIZE),
+  ASPECTS_VIDEO_WATCH_INTERVALS_REFRESH(_RANDOMIZE): aspects-dbt 8.1 rebuilds
+  the course structure and video watch tables on a timer (every 5 minutes plus
+  up to 1 minute by default), so a publish or a watch reaches the charts only
+  on the next refresh. Refresh every 30 seconds so that fits the analytics
+  budgets. Older Aspects releases ignore these settings.
 - SUPERSET_CONFIG["internal_service_url"]: the LMS asks Superset for guest
   tokens at the address it would give a browser, `superset.local.openedx.io`,
   which inside the LMS container resolves to the container itself. Point it at
@@ -25,6 +31,10 @@ hooks.Filters.CONFIG_OVERRIDES.add_items(
     [
         ("ASPECTS_ENABLE_PII", True),
         ("ASPECTS_ENABLE_STUDIO_IN_CONTEXT_METRICS", True),
+        ("ASPECTS_COURSE_STRUCTURE_REFRESH", "EVERY 30 SECOND"),
+        ("ASPECTS_COURSE_STRUCTURE_REFRESH_RANDOMIZE", "1 SECOND"),
+        ("ASPECTS_VIDEO_WATCH_INTERVALS_REFRESH", "EVERY 30 SECOND"),
+        ("ASPECTS_VIDEO_WATCH_INTERVALS_REFRESH_RANDOMIZE", "1 SECOND"),
     ]
 )
 
