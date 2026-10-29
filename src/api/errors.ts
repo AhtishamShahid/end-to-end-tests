@@ -30,8 +30,9 @@ export class ApiError extends Error {
 }
 
 /**
- * Raised when a legacy Studio write (`POST /course/`) is answered with a redirect
- * to sign-in: the request context's Studio Django session has gone (the CI cache
+ * Raised when a legacy Studio write (`POST /course/`) is answered with a sign-in
+ * bounce — a redirect to sign-in, or (since openedx-platform#39296) a bare `401`
+ * for a non-HTML request; see {@link isStudioSignInBounce}: the request context's Studio Django session has gone (the CI cache
  * evicts it spuriously under memory pressure), and these views authenticate by
  * that session, not the JWT. Distinct from a plain {@link ApiError} so a caller
  * that holds credentials can catch *this* case and re-authenticate before
@@ -44,10 +45,19 @@ export class ApiError extends Error {
 export class StudioSessionExpiredError extends ApiError {
   constructor(what: string, details: { url: string; status: number }) {
     super(
-      `${what} was redirected to sign-in (HTTP ${details.status}): the Studio session is gone. ` +
+      `${what} was bounced to sign-in (HTTP ${details.status}): the Studio session is gone. ` +
         'Re-authenticate the request context and retry.',
       { status: details.status, url: details.url, body: '' },
     );
     this.name = 'StudioSessionExpiredError';
   }
+}
+
+/**
+ * Whether a legacy Studio view's status is the sign-in bounce of a gone Studio
+ * session. Older releases redirect (`3xx`, with redirects not followed); newer
+ * ones answer a non-HTML request with `401` instead (openedx-platform#39296).
+ */
+export function isStudioSignInBounce(status: number): boolean {
+  return status === 401 || (status >= 300 && status < 400);
 }

@@ -3,6 +3,7 @@ import type { APIRequestContext } from '@playwright/test';
 import type { AppConfig } from '../config';
 import { CSRF_HEADER, fetchCsrfToken } from './csrf';
 import { ApiError } from './errors';
+import { nonJsonPreview } from './studio-origin';
 
 /**
  * The **openedx-authz** API (`/api/authz/v1/`) behind the Roles and Permissions
@@ -688,10 +689,11 @@ export async function assignRole(
     headers: { [CSRF_HEADER]: token, Referer: config.baseUrls.lms },
   });
   if (response.status() !== 207 && !response.ok()) {
-    throw new ApiError(`${what} failed (HTTP ${response.status()}).`, {
+    const body = (await response.text()).slice(0, 500);
+    throw new ApiError(`${what} failed (HTTP ${response.status()}): ${nonJsonPreview(body)}`, {
       status: response.status(),
       url,
-      body: (await response.text()).slice(0, 500),
+      body,
     });
   }
   const result = toWriteResult((await response.json()) as Parameters<typeof toWriteResult>[0]);

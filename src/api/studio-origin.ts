@@ -2,7 +2,7 @@ import type { APIRequestContext } from '@playwright/test';
 
 import type { AppConfig } from '../config';
 import { CSRF_HEADER, fetchCsrfToken } from './csrf';
-import { ApiError, StudioSessionExpiredError } from './errors';
+import { ApiError, isStudioSignInBounce, StudioSessionExpiredError } from './errors';
 
 /**
  * The Studio origin from config, or a clear error when none is set. Every Studio
@@ -115,8 +115,9 @@ export async function studioJson<T>(
  * One credentialed write against a legacy Studio view (`/xblock/`, `/course/`,
  * …), with the failure modes those views share turned into typed errors:
  *
- * - a `3xx` is the sign-in bounce of a gone Studio Django session (these views
- *   authenticate by that session, not the JWT) → {@link StudioSessionExpiredError},
+ * - a `3xx`, or a `401` on newer releases, is the sign-in bounce of a gone Studio
+ *   Django session (these views authenticate by that session, not the JWT) →
+ *   {@link StudioSessionExpiredError},
  *   so a caller holding credentials can re-authenticate and retry. Redirects are
  *   not followed: a followed one becomes a `GET` of the collection URL and a
  *   misleading 404;
@@ -143,7 +144,7 @@ export async function studioWrite<T>(
   });
   const status = response.status();
   const text = await response.text();
-  if (status >= 300 && status < 400) {
+  if (isStudioSignInBounce(status)) {
     throw new StudioSessionExpiredError(what, { url, status });
   }
   if (status === 403) {
