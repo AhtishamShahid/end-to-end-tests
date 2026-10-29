@@ -127,9 +127,31 @@ export class FilesPage {
     await this.page.locator(this.s.modalApply).click();
   }
 
-  /** Checks the header "select all" box (force: the box sits behind a styled label). */
+  /**
+   * Checks the header "select all" box (force: the box sits behind a styled label)
+   * and waits until every row reads selected. The table can re-render once more
+   * just after its rows first show, dropping a selection made in that window (the
+   * bulk Actions then stay disabled), so the box is re-checked until it holds.
+   */
   async selectAll(): Promise<void> {
-    await this.selectAllCheckbox.click({ force: true });
+    const unselectedRow = this.page.locator(`${this.s.rowCheckbox}:not(:checked)`).first();
+    const deadline = Date.now() + TIMEOUTS.action;
+    const holds = () =>
+      unselectedRow
+        .waitFor({ state: 'detached', timeout: TIMEOUTS.optionalOverlay })
+        .then(() => true)
+        .catch(() => false);
+    // `setChecked` throws when a click does not change the box; that is the case
+    // being retried, so the final wait below reports it instead.
+    const check = () =>
+      this.selectAllCheckbox.setChecked(true, { force: true }).catch(() => undefined);
+    await check();
+    while (!(await holds())) {
+      if (Date.now() > deadline) break;
+      await check();
+    }
+    // One last wait so a failure names the unselected rows, not the bulk menu.
+    await unselectedRow.waitFor({ state: 'detached', timeout: TIMEOUTS.optionalOverlay });
   }
 
   /** Opens an asset's 3-dot menu (card or list row). */
