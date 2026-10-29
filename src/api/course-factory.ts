@@ -1,7 +1,7 @@
 import type { APIRequestContext } from '@playwright/test';
 
 import { TIMEOUTS, type AppConfig } from '../config';
-import { ApiError, StudioSessionExpiredError } from './errors';
+import { ApiError, isStudioSignInBounce, StudioSessionExpiredError } from './errors';
 import { fetchStudioHome } from './studio-home';
 import { nonJsonPreview, studioOrigin, studioWriteHeaders } from './studio-origin';
 
@@ -108,9 +108,10 @@ async function postCourse(
     );
   }
   // 3xx here is always the sign-in bounce of a gone Studio session (the only
-  // redirect this view issues). Surfaced as its own error so the fixture that holds
-  // credentials can catch it and re-authenticate on a clean context.
-  if (response.status() >= 300 && response.status() < 400) {
+  // redirect this view issues); newer releases answer it with a 401 instead.
+  // Surfaced as its own error so the fixture that holds credentials can catch it
+  // and re-authenticate on a clean context.
+  if (isStudioSignInBounce(response.status())) {
     throw new StudioSessionExpiredError(what, { url, status: response.status() });
   }
   if (!response.ok()) {

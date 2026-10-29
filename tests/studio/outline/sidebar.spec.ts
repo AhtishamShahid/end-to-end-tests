@@ -126,14 +126,17 @@ test.describe(
         });
 
         // The learner sees the visible section's unit but not the staff-only one.
+        // Both from one reading: the hide reaches the learner a publish fan-out
+        // after the visible unit does, so the hidden one can still show for a while.
         await expect
-          .poll(async () => (await authoringCourseLearner.outline()).units.map((u) => u.id), {
-            timeout: TIMEOUTS.contentPublish,
-          })
-          .toContain(visibleUnit);
-        expect((await authoringCourseLearner.outline()).units.map((u) => u.id)).not.toContain(
-          hiddenUnit,
-        );
+          .poll(
+            async () => {
+              const ids = (await authoringCourseLearner.outline()).units.map((u) => u.id);
+              return { visible: ids.includes(visibleUnit), hidden: ids.includes(hiddenUnit) };
+            },
+            { timeout: TIMEOUTS.contentPublish },
+          )
+          .toEqual({ visible: true, hidden: false });
       },
     );
 

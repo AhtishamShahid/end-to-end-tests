@@ -1620,9 +1620,9 @@ async function withAdminLmsSession<T>(
   const isDeadSession = (error: unknown): boolean =>
     error instanceof ApiError &&
     // "did not render" is an admin page that came back as the login redirect;
-    // "redirected to sign-in" is the Studio half of the same session having
+    // "redirected/bounced to sign-in" is the Studio half of the same session having
     // decayed, which a `StudioSessionExpiredError` reports.
-    /did not render|redirected to sign-in|HTTP 40[13]/.test(error.message);
+    /did not render|(?:redirected|bounced) to sign-in|HTTP 40[13]/.test(error.message);
 
   return withAdminSession(async () => {
     const run = async (signIn: boolean): Promise<T> => {
@@ -1821,7 +1821,7 @@ async function buildWithAuthorWriteSession<T>(
   } catch (error) {
     if (!(error instanceof StudioSessionExpiredError)) throw error;
   }
-  // The first write 302'd: the Studio session is gone (cache eviction). A dead
+  // The first write bounced to sign-in: the Studio session is gone (cache eviction). A dead
   // session dies on its first write, so nothing was created — rebuild off the
   // JWT and retry the whole build once.
   try {
